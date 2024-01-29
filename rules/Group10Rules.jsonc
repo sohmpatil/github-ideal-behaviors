@@ -1,0 +1,19 @@
+{
+    "rules" : {
+        /*
+            Some notes: An important term here is "meaningful". Our goal with this project is to find people who are not making meaningful contributions.
+            The meaningful threshold below defines the number of lines of code that the commit must contain in order to be considered meaningful.
+            All numbers below are placeholders/defaults. Remember that a manager should be able to edit these to their liking/needs.
+            Finally, a 0 or "" value means that rule should be skipped.
+        */
+        "meaningfulLinesThreshold" : 5, // The minimum number of (non-comment) lines a commit must have in order to be considered meaningful
+        "minCommits" : 3, // The minimum number of meaningful commits a developer is expected to make
+        "minLines" : 0, // The minimum number of lines of code the developer is expected to have added overall
+        "minBlame" : 3, // The minimum number of lines of code that should show a given developer in the Git Blame after making their commit
+        "minTimeBetweenCommits" : 2, // The minimum amount of time (in hours) a developer is expected to wait between making commits (rapid fire commits are suspicious)
+        "maxFilesPerCommit" : 3, // The maximum number of files a developer is expected to edit per commit
+        "allowedFileTypes" : [ // Which file types developers are expected to commit - if blank allow all file types
+            ".java"
+        ]
+    }
+}
