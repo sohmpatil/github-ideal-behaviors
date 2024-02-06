@@ -50,3 +50,24 @@ def get_changed_files(owner, repo, commit_sha, access_token):
     else:
         print(f"Error: {response.status_code}")
         return {}
+
+
+def get_number_of_new_lines(owner, repo, commit_sha, access_token):
+    url = f'https://api.github.com/repos/{owner}/{repo}/commits/{commit_sha}'
+    headers = {'Authorization': f'token {access_token}'}
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        commit_data = response.json()
+        print("Commit ID: ", commit_sha)
+        lines = commit_data.get('stats', [])
+        additions = lines.get('additions', 0)
+        deletions = lines.get('deletions', 0)
+
+        print(f"No. of New lines added: {additions}")
+        print(f"No. of lines deleted: {deletions}")
+
+    else:
+        print(f"Error: {response.status_code}")
+        return {}
