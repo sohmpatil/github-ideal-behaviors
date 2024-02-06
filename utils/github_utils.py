@@ -1,3 +1,4 @@
+import datetime
 import requests
 import os
 import collections
@@ -78,3 +79,38 @@ def get_number_of_new_lines(owner, repo, commit_sha, access_token):
     else:
         print(f"Error: {response.status_code}")
         return {}
+    
+def fetch_consecutime_time_between_commits(repo_owner, repo_name, access_token, author):
+    commits = get_commits(
+        repo_owner, repo_name, access_token, author=author)
+    timestamp_list = []
+    for sha in commits:
+        commit_timestamp = get_commit_timestamp(repo_owner, repo_name, sha, access_token)
+        timestamp_list.append(commit_timestamp)
+    if timestamp_list:
+        time_diffs = calculate_time_diffs(timestamp_list)
+        return time_diffs
+    else:
+        print("No commits found.")
+
+def get_commit_timestamp(owner, repo, commit_sha, access_token):
+    url = f'https://api.github.com/repos/{owner}/{repo}/commits/{commit_sha}'
+    headers = {'Authorization': f'token {access_token}'}
+    response = requests.get(url, headers=headers)
+
+    if response.status_code ==  200:
+        commit_data = response.json()
+        timestamp = commit_data['commit']['author'].get('date')
+        return timestamp
+    else:
+        print(f"Error: {response.status_code}")
+        return None
+
+
+def calculate_time_diffs(timestamp_list):
+    print(timestamp_list)
+    # Convert strings to datetime objects
+    timestamps = [datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%SZ") for ts in timestamp_list[::-1]]
+    # Calculate time differences in hours
+    time_diffs = [(timestamps[i+1] - timestamps[i]).total_seconds() /  3600 for i in range(len(timestamps)-1)]
+    return time_diffs
