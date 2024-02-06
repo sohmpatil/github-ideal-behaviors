@@ -89,8 +89,7 @@ def fetch_consecutime_time_between_commits(repo_owner, repo_name, access_token, 
         timestamp_list.append(commit_timestamp)
     if timestamp_list:
         time_diffs = calculate_time_diffs(timestamp_list)
-        print("Time differences between consecutive commits (in hours):")
-        print(time_diffs)
+        return time_diffs
     else:
         print("No commits found.")
 
