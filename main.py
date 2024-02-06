@@ -25,6 +25,6 @@ if __name__ == '__main__':
     if commits:
         print(f"Commits List of {repository_owner}/{repository_name}:")
         for commit in commits:
-            print(f"{commit}")
+            print(git_utils.get_changed_files(repository_owner, repository_name, commit, access_token))
     else:
         print("No commits found.")

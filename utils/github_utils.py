@@ -1,4 +1,6 @@
 import requests
+import os
+import collections
 
 
 def get_collaborators(repo_owner, repo_name, access_token):
@@ -32,3 +34,19 @@ def get_commits(owner, repo, access_token):
     else:
         print(f"Error: {response.status_code}")
         return []
+
+def get_changed_files(owner, repo, commit_sha, access_token):
+    url = f'https://api.github.com/repos/{owner}/{repo}/commits/{commit_sha}'
+    headers = {'Authorization': f'token {access_token}'}
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code ==  200:
+        commit_data = response.json()
+        files = commit_data.get('files', [])
+        changed_files = [os.path.splitext(file['filename'])[1] for file in files]
+        changed_files_extension = collections.Counter(changed_files)
+        return changed_files_extension
+    else:
+        print(f"Error: {response.status_code}")
+        return {}
