@@ -18,3 +18,17 @@ def get_collaborators(repo_owner, repo_name, access_token):
     else:
         print(f"Error: {response.status_code}")
         return collaborators
+
+def get_commits(owner, repo, access_token):
+    url = f'https://api.github.com/repos/{owner}/{repo}/commits?sha=main'
+    headers = {'Authorization': f'token {access_token}'}
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code ==  200:
+        commits = response.json()
+        commit_shas = [commit['sha'] for commit in commits]
+        return commit_shas
+    else:
+        print(f"Error: {response.status_code}")
+        return []

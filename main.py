@@ -1,6 +1,6 @@
 import os
 
-from utils.collaborators import get_collaborators
+import utils.github_utils as git_utils
 
 
 if __name__ == '__main__':
@@ -10,12 +10,21 @@ if __name__ == '__main__':
     # Set git access token in env
     access_token = os.environ.get('git_access_token')
 
-    developers = get_collaborators(
+    developers = git_utils.get_collaborators(
         repository_owner, repository_name, access_token)
 
     if developers:
         print(f"List of Developers to {repository_owner}/{repository_name}:")
         for developer in developers:
-            print(f"{developers}")
+            print(f"{developer}")
     else:
         print("Unable to retrieve developers.")
+
+    commits = git_utils.get_commits(repository_owner, repository_name, access_token)
+
+    if commits:
+        print(f"Commits List of {repository_owner}/{repository_name}:")
+        for commit in commits:
+            print(f"{commit}")
+    else:
+        print("No commits found.")
