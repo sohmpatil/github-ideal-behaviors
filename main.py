@@ -25,7 +25,13 @@ if __name__ == '__main__':
     if commits:
         print(f"Commits List of {repository_owner}/{repository_name}:")
         for commit in commits:
-            print(git_utils.get_changed_files(repository_owner, repository_name, commit, access_token))
+            files_extension_dict = git_utils.get_changed_files(repository_owner,
+                                                                repository_name,
+                                                                commit, 
+                                                                access_token)
+            print(f"Commit ID: {commit}")
+            print(f"Extension Counts {dict(files_extension_dict)}")
+            print(f"Total changed files in the commit: {sum(files_extension_dict.values())}")
     else:
         print("No commits found.")
 
