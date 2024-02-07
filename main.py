@@ -77,7 +77,7 @@ if __name__ == '__main__':
         repository_owner, repository_name, access_token)
     for collaborator in collaborators:
         log.info(f"Time difference in consecutive commits for {collaborator}")
-        time_diffs = git_utils.fetch_consecutime_time_between_commits(
+        time_diffs = git_utils.fetch_consecutive_time_between_commits(
             repository_owner, 
             repository_name, 
             access_token, 
