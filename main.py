@@ -9,8 +9,8 @@ app = FastAPI()
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("main")
 
-@app.get("/analyze")
-async def analyze_repository(repository_owner: str, repository_name: str, git_access_token: str):
+@app.get("/gitbehaviors")
+def analyze_repository(repository_owner: str, repository_name: str, git_access_token: str):
     dev_commits = get_dev_commits(repository_owner, repository_name, git_access_token)
     log.info(dev_commits)
 
