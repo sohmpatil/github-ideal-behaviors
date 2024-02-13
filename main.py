@@ -1,6 +1,7 @@
 import os
 import logging
 import utils.github_utils as git_utils
+import utils.rules_util as rules_utils
 
 repository_owner = 'asu-cse578-s2023'
 repository_name = 'Anisha-Roshan-Sanika-Sanket-Sarthak-Soham'
@@ -16,8 +17,8 @@ def get_dev_commits():
     """Get number of commits for each developer"""
     dev_commits = {}
     developers = git_utils.get_collaborators(
-        repository_owner, 
-        repository_name, 
+        repository_owner,
+        repository_name,
         access_token
     )
     if not developers:
@@ -25,9 +26,9 @@ def get_dev_commits():
 
     for developer in developers:
         commits = git_utils.get_commits(
-            repository_owner, 
-            repository_name, 
-            access_token, 
+            repository_owner,
+            repository_name,
+            access_token,
             developer
         )
         dev_commits[developer] = len(commits)
@@ -40,8 +41,8 @@ if __name__ == '__main__':
     log.info(dev_commits)
 
     commits = git_utils.get_commits(
-        repository_owner, 
-        repository_name, 
+        repository_owner,
+        repository_name,
         access_token
     )
     log.info(commits)
@@ -65,9 +66,9 @@ if __name__ == '__main__':
         log.info(f"Commits List of {repository_owner}/{repository_name}:")
         for commit in commits:
             git_utils.get_number_of_new_lines(
-                repository_owner, 
-                repository_name, 
-                commit, 
+                repository_owner,
+                repository_name,
+                commit,
                 access_token
             )
     else:
@@ -78,9 +79,24 @@ if __name__ == '__main__':
     for collaborator in collaborators:
         log.info(f"Time difference in consecutive commits for {collaborator}")
         time_diffs = git_utils.fetch_consecutive_time_between_commits(
-            repository_owner, 
-            repository_name, 
-            access_token, 
+            repository_owner,
+            repository_name,
+            access_token,
             collaborator
         )
         log.info(time_diffs)
+
+    rules_folder_path = './rules'
+    rules_file = 'Group10Rules.jsonc'
+
+    rules = rules_utils.load_rules(rules_folder_path, rules_file)
+
+    # You can use RULE global variable from rules_util as well
+    print(rules, rules_utils.RULES)
+    print("meaningfulLinesThreshold", rules['meaningfulLinesThreshold'])
+    print("minCommits", rules['minCommits'])
+    print("minLines", rules['minLines'])
+    print("minBlame", rules['minBlame'])
+    print("minTimeBetweenCommits", rules['minTimeBetweenCommits'])
+    print("maxFilesPerCommit", rules['maxFilesPerCommit'])
+    print("allowedFileTypes", rules['allowedFileTypes'])
