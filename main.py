@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 import logging
 import utils.github_utils as git_utils
+import utils.rules_util as rules_utils
 
 app = FastAPI()
 
@@ -36,6 +37,18 @@ def analyze_repository(repository_owner: str, repository_name: str, git_access_t
     else:
         log.info("No commits found.")
 
+    if commits:
+        log.info(f"Commits List of {repository_owner}/{repository_name}:")
+        for commit in commits:
+            git_utils.get_number_of_new_lines(
+                repository_owner,
+                repository_name,
+                commit,
+                git_access_token
+            )
+    else:
+        log.info("No commits found.")
+
     collaborators = git_utils.get_collaborators(
         repository_owner, repository_name, git_access_token)
     for collaborator in collaborators:
@@ -47,6 +60,22 @@ def analyze_repository(repository_owner: str, repository_name: str, git_access_t
             collaborator
         )
         log.info(time_diffs)
+    
+
+    rules_folder_path = './rules'
+    rules_file = 'Group10Rules.jsonc'
+
+    rules = rules_utils.load_rules(rules_folder_path, rules_file)
+
+    # You can use RULE global variable from rules_util as well
+    print(rules, rules_utils.RULES)
+    print("meaningfulLinesThreshold", rules['meaningfulLinesThreshold'])
+    print("minCommits", rules['minCommits'])
+    print("minLines", rules['minLines'])
+    print("minBlame", rules['minBlame'])
+    print("minTimeBetweenCommits", rules['minTimeBetweenCommits'])
+    print("maxFilesPerCommit", rules['maxFilesPerCommit'])
+    print("allowedFileTypes", rules['allowedFileTypes'])
 
     # Return the results
     return {
@@ -61,8 +90,8 @@ def get_dev_commits(repository_owner, repository_name, access_token):
     """Get number of commits for each developer"""
     dev_commits = {}
     developers = git_utils.get_collaborators(
-        repository_owner, 
-        repository_name, 
+        repository_owner,
+        repository_name,
         access_token
     )
     if not developers:
@@ -70,9 +99,9 @@ def get_dev_commits(repository_owner, repository_name, access_token):
 
     for developer in developers:
         commits = git_utils.get_commits(
-            repository_owner, 
-            repository_name, 
-            access_token, 
+            repository_owner,
+            repository_name,
+            access_token,
             developer
         )
         dev_commits[developer] = len(commits)
