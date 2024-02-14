@@ -25,16 +25,13 @@ def analyze_repository(repository_owner: str, repository_name: str, git_access_t
     log.info(len(commits))
     if commits:
         log.info(f"Commits List of {repository_owner}/{repository_name}:")
-        count = 0
         for commit in commits:
-            count+=1
             files_extension_dict = git_utils.get_changed_files(
                 repository_owner,
                 repository_name,
                 commit,
                 git_access_token
             )
-            log.info(f"No. commit: {count}")
             log.info(f"Commit ID: {commit}")
             log.info(f"Extension Counts {dict(files_extension_dict)}")
             log.info(f"Total changed files in the commit: \
@@ -44,10 +41,7 @@ def analyze_repository(repository_owner: str, repository_name: str, git_access_t
 
     if commits:
         log.info(f"Commits List of {repository_owner}/{repository_name}:")
-        count = 0
         for commit in commits:
-            count += 1
-            log.info(f"Commit no.: {count}")
             git_utils.get_number_of_new_lines(
                 repository_owner,
                 repository_name,
