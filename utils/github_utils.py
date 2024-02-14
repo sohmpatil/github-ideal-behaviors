@@ -8,7 +8,6 @@ import logging
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("github_utils")
 
-
 def get_collaborators(repo_owner, repo_name, access_token):
     api_url = f'https://api.github.com/repos/{repo_owner}/{repo_name}/collaborators'
     headers = {'Authorization': f'token {access_token}'}
@@ -26,19 +25,27 @@ def get_collaborators(repo_owner, repo_name, access_token):
 
 
 def get_commits(owner, repo, access_token, author=''):
-    api_url = f'https://api.github.com/repos/{owner}/{repo}/commits?per_page=100'
-    if author != '':
-        api_url += f'&author={author}'
-    headers = {'Authorization': f'token {access_token}'}
-    response = requests.get(api_url, headers=headers)
+    page = 1
+    commit_shas = []
 
-    if response.status_code == 200:
-        commits = response.json()
-        commit_shas = [commit['sha'] for commit in commits]
-        return commit_shas
-    else:
-        log.error(f"Error: {response.status_code}")
-        return []
+    while True:
+        api_url = f'https://api.github.com/repos/{owner}/{repo}/commits?per_page=100&page={page}'
+        if author != '':
+            api_url += f'&author={author}'
+        headers = {'Authorization': f'token {access_token}'}
+        response = requests.get(api_url, headers=headers)
+
+        if response.status_code == 200:
+            commits = response.json()
+            if not commits:
+                break
+            commit_shas.extend(commit['sha'] for commit in commits)
+            page += 1
+        else:
+            print(f"Error: {response.status_code}")
+            return []
+
+    return commit_shas
 
 
 def get_changed_files(owner, repo, commit_sha, access_token):
@@ -61,6 +68,7 @@ def get_changed_files(owner, repo, commit_sha, access_token):
 
 
 def get_number_of_new_lines(owner, repo, commit_sha, access_token):
+
     url = f'https://api.github.com/repos/{owner}/{repo}/commits/{commit_sha}'
     headers = {'Authorization': f'token {access_token}'}
     response = requests.get(url, headers=headers)
