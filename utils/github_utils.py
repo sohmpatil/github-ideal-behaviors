@@ -5,6 +5,8 @@ import collections
 import logging
 from collections import defaultdict
 
+from .comments_utils import getuncommentedLines
+
 # Setup logger
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("github_utils")
@@ -118,7 +120,7 @@ def get_commit_timestamp(owner, repo, commit_sha, access_token):
     headers = {'Authorization': f'token {access_token}'}
     response = requests.get(url, headers=headers)
 
-    if response.status_code ==  200:
+    if response.status_code == 200:
         commit_data = response.json()
         timestamp = commit_data['commit']['author'].get('date')
         return timestamp
@@ -141,21 +143,37 @@ def calculate_time_diffs(timestamp_list):
     ]
     return time_diffs
 
-
-def get_number_of_changes_by_author(owner, repo, commit_sha, access_token):
+def get_added_lines(owner, repo, commit_sha, access_token):
+    """
+        function returns dictionary with file name as key and lines added as values
+    """
     url = f'https://api.github.com/repos/{owner}/{repo}/commits/{commit_sha}'
     headers = {'Authorization': f'token {access_token}'}
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
-        commit_data = response.json()
-
-        lines = commit_data.get('stats', [])
-        author_name = commit_data['commit']['author']['name']
-        log.info(f"Author: {author_name}")
-        total = lines.get('total', 0)
-        log.info(f"No. of total lines changed by author: {total}")
-
+        commit_info = response.json()
+        added_lines = dict()
+        files_changed = commit_info['files']
+        for file in files_changed:
+            if file['status'] == 'added':
+                file_url = file['raw_url']
+                file_response = requests.get(file_url)
+                if file_response.status_code == 200:
+                    added_lines[file['filename']] = file_response.text
+                else:
+                    log.error(f"Failed to retrieve file content: {file_url}")
+        return added_lines
     else:
         log.error(f"Error: {response.status_code}")
-        return {}
+        return None
+
+
+def getmeaningfulLines(owner, repo, commit_sha, access_token):
+    files_changed = get_added_lines(owner, repo, commit_sha, access_token)
+    meaningfulLines = 0
+    for file_name, content in files_changed.items():
+        meaningfulLines += getuncommentedLines(
+            file_name, content)
+    return meaningfulLines
+
