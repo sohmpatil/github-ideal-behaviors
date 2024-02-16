@@ -24,7 +24,7 @@ def analyze_repository(repository_owner: str, repository_name: str, git_access_t
     log.info(commits)
     log.info(len(commits))
     if commits:
-        log.info(f"Commits List of {repository_owner}/{repository_name}:")
+        log. info(f"Commits List of {repository_owner}/{repository_name}:")
         for commit in commits:
             files_extension_dict = git_utils.get_changed_files(
                 repository_owner,
