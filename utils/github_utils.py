@@ -107,7 +107,7 @@ def get_commit_timestamp(owner, repo, commit_sha, access_token):
     headers = {'Authorization': f'token {access_token}'}
     response = requests.get(url, headers=headers)
 
-    if response.status_code ==  200:
+    if response.status_code == 200:
         commit_data = response.json()
         timestamp = commit_data['commit']['author'].get('date')
         return timestamp
@@ -129,3 +129,29 @@ def calculate_time_diffs(timestamp_list):
         for i in range(len(timestamps)-1)
     ]
     return time_diffs
+
+
+def get_added_lines(owner, repo, commit_sha, access_token):
+    """
+        function returns dictionary with file name as key and lines added as values
+    """
+    url = f'https://api.github.com/repos/{owner}/{repo}/commits/{commit_sha}'
+    headers = {'Authorization': f'token {access_token}'}
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        commit_info = response.json()
+        added_lines = dict()
+        files_changed = commit_info['files']
+        for file in files_changed:
+            if file['status'] == 'added':
+                file_url = file['raw_url']
+                file_response = requests.get(file_url)
+                if file_response.status_code == 200:
+                    added_lines[file['filename']] = file_response.text
+                else:
+                    log.error(f"Failed to retrieve file content: {file_url}")
+        return added_lines
+    else:
+        log.error(f"Error: {response.status_code}")
+        return None
