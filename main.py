@@ -2,7 +2,7 @@ from fastapi import FastAPI
 import logging
 import utils.github_utils as git_utils
 import utils.rules_util as rules_utils
-from models.data_model import RepositoryAnalysisInput 
+from models.data_model import RepositoryAnalysisInput
 
 app = FastAPI()
 
@@ -14,17 +14,21 @@ log = logging.getLogger("main")
 RULES_FOLDER_PATH = './rules'
 RULES_FILE = 'Group10Rules.jsonc'
 
+
 @app.post("/gitbehaviors")
 def analyze_repository(data: RepositoryAnalysisInput):
 
-    dev_commits = get_dev_commits(data.repository_owner, data.repository_name, data.git_access_token)
+    dev_commits = get_dev_commits(
+        data.repository_owner, data.repository_name, data.git_access_token)
     log.info(dev_commits)
 
-    commits = git_utils.get_commits(data.repository_owner, data.repository_name, data.git_access_token)
+    commits = git_utils.get_commits(
+        data.repository_owner, data.repository_name, data.git_access_token)
     log.info(commits)
-    
+
     if commits:
-        log. info(f"Commits List of {data.repository_owner}/{data.repository_name}:")
+        log. info(
+            f"Commits List of {data.repository_owner}/{data.repository_name}:")
         for commit in commits:
             files_extension_dict = git_utils.get_changed_files(
                 data.repository_owner,
@@ -40,7 +44,8 @@ def analyze_repository(data: RepositoryAnalysisInput):
         log.info("No commits found.")
 
     if commits:
-        log.info(f"Commits List of {data.repository_owner}/{data.repository_name}:")
+        log.info(
+            f"Commits List of {data.repository_owner}/{data.repository_name}:")
         for commit in commits:
             git_utils.get_number_of_new_lines(
                 data.repository_owner,
@@ -49,7 +54,7 @@ def analyze_repository(data: RepositoryAnalysisInput):
                 data.git_access_token
             )
 
-            git_utils.get_number_of_changes_by_author(
+            git_utils.getmeaningfulLines(
                 data.repository_owner,
                 data.repository_name,
                 commit,
@@ -63,14 +68,12 @@ def analyze_repository(data: RepositoryAnalysisInput):
     for collaborator in collaborators:
         log.info(f"Time difference in consecutive commits for {collaborator}")
         time_diffs = git_utils.fetch_consecutive_time_between_commits(
-            data.repository_owner,  
-            data.repository_name,  
-            data.git_access_token,  
+            data.repository_owner,
+            data.repository_name,
+            data.git_access_token,
             collaborator
         )
         log.info(time_diffs)
-
-
 
     rules = rules_utils.load_rules(RULES_FOLDER_PATH, RULES_FILE)
 
@@ -88,8 +91,8 @@ def analyze_repository(data: RepositoryAnalysisInput):
     return {
         "dev_commits": dev_commits,
         "commits": commits,
-      #  "collaborators": collaborators,
-      #  "time_diffs": time_diffs
+        #  "collaborators": collaborators,
+        #  "time_diffs": time_diffs
     }
 
 
