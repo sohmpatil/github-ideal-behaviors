@@ -20,7 +20,9 @@ def analyze_repository(repository_owner: str, repository_name: str, git_access_t
         repository_name,  
         git_access_token
     )
+
     log.info(commits)
+    log.info(len(commits))
     if commits:
         log.info(f"Commits List of {repository_owner}/{repository_name}:")
         for commit in commits:
@@ -87,8 +89,8 @@ def analyze_repository(repository_owner: str, repository_name: str, git_access_t
     return {
         "dev_commits": dev_commits,
         "commits": commits,
-        "collaborators": collaborators,
-        "time_diffs": time_diffs
+      #  "collaborators": collaborators,
+      #  "time_diffs": time_diffs
     }
 
 
