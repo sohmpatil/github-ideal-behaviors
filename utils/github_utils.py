@@ -4,6 +4,8 @@ import os
 import collections
 import logging
 
+from .comments_utils import getuncommentedLines
+
 # Setup logger
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("github_utils")
@@ -155,3 +157,12 @@ def get_added_lines(owner, repo, commit_sha, access_token):
     else:
         log.error(f"Error: {response.status_code}")
         return None
+
+
+def getmeaningfulLines(owner, repo, commit_sha, access_token):
+    files_changed = get_added_lines(owner, repo, commit_sha, access_token)
+    meaningfulLines = 0
+    for file_name, content in files_changed.items():
+        meaningfulLines += getuncommentedLines(
+            file_name, content)
+    return meaningfulLines
