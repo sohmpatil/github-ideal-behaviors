@@ -13,10 +13,22 @@ pip install -r requirements.txt
 
 ## How to run
 ``` 
+make run 
+```
+OR
+```
 python -m uvicorn main:app --reload
 ```
 
 ## How to use API
 ```
-curl -X GET "http://localhost:8000/gitbehaviors?repository_owner=asu-cse578-s2023&repository_name=Anisha-Roshan-Sanika-Sanket-Sarthak-Soham&git_access_token={example_token}"
+curl -X 'POST' \
+  'http://127.0.0.1:8000/gitbehaviors' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "repository_owner": "string",
+  "repository_name": "string",
+  "git_access_token": "string"
+}'
 ```

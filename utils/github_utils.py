@@ -10,6 +10,8 @@ from collections import defaultdict
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("github_utils")
 
+GITHUB_API_BASE_URL = 'https://api.github.com'
+
 def get_collaborators(repo_owner, repo_name, access_token):
     api_url = f'https://api.github.com/repos/{repo_owner}/{repo_name}/collaborators'
     headers = {'Authorization': f'token {access_token}'}
