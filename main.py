@@ -46,6 +46,13 @@ def analyze_repository(repository_owner: str, repository_name: str, git_access_t
                 commit,
                 git_access_token
             )
+
+            git_utils.get_number_of_changes_by_author(
+                repository_owner,
+                repository_name,
+                commit,
+                git_access_token)
+
     else:
         log.info("No commits found.")
 
@@ -60,7 +67,6 @@ def analyze_repository(repository_owner: str, repository_name: str, git_access_t
             collaborator
         )
         log.info(time_diffs)
-    
 
     rules_folder_path = './rules'
     rules_file = 'Group10Rules.jsonc'

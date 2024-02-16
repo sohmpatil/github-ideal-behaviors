@@ -3,6 +3,8 @@ import requests
 import os
 import collections
 import logging
+from git import Repo
+from collections import defaultdict
 
 # Setup logger
 logging.basicConfig(level=logging.INFO)
@@ -129,3 +131,22 @@ def calculate_time_diffs(timestamp_list):
         for i in range(len(timestamps)-1)
     ]
     return time_diffs
+
+
+def get_number_of_changes_by_author(owner, repo, commit_sha, access_token):
+    url = f'https://api.github.com/repos/{owner}/{repo}/commits/{commit_sha}'
+    headers = {'Authorization': f'token {access_token}'}
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        commit_data = response.json()
+
+        lines = commit_data.get('stats', [])
+        author_name = commit_data['commit']['author']['name']
+        log.info(f"Author: {author_name}")
+        total = lines.get('total', 0)
+        log.info(f"No. of total lines changed by author: {total}")
+
+    else:
+        log.error(f"Error: {response.status_code}")
+        return {}
