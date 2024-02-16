@@ -20,20 +20,9 @@ def analyze_repository(data: RepositoryAnalysisInput):
     dev_commits = get_dev_commits(data.repository_owner, data.repository_name, data.git_access_token)
     log.info(dev_commits)
 
-<<<<<<< HEAD
-    commits = git_utils.get_commits(
-        repository_owner,  
-        repository_name,  
-        git_access_token
-    )
-
-    log.info(commits)
-    log.info(len(commits))
-=======
     commits = git_utils.get_commits(data.repository_owner, data.repository_name, data.git_access_token)
     log.info(commits)
     
->>>>>>> 1392283 (minor refactoring and update README)
     if commits:
         log. info(f"Commits List of {data.repository_owner}/{data.repository_name}:")
         for commit in commits:
@@ -61,10 +50,10 @@ def analyze_repository(data: RepositoryAnalysisInput):
             )
 
             git_utils.get_number_of_changes_by_author(
-                repository_owner,
-                repository_name,
+                data.repository_owner,
+                data.repository_name,
                 commit,
-                git_access_token)
+                data.git_access_token)
 
     else:
         log.info("No commits found.")

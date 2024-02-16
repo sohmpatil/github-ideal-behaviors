@@ -3,7 +3,6 @@ import requests
 import os
 import collections
 import logging
-from git import Repo
 from collections import defaultdict
 
 # Setup logger
