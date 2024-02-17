@@ -40,14 +40,14 @@ def analyze_repository(data: RepositoryAnalysisInput):
     )
     log.info(commits)
 
-    rules = rules_utils.load_rules(RULES_FOLDER_PATH, RULES_FILE)
+    rules = RULES
     # You can use RULE global variable from rules_util as well
     log.info(f'rules: {rules}')
 
     violations = defaultdict(list)
     # 1. check violation for min commits rule per developer
     for dev, count in dev_commits.items():
-        if count < rules['minCommits']:
+        if count < rules.minCommits:
             violations['minCommits'].append(dev)
 
     if commits:
@@ -65,12 +65,12 @@ def analyze_repository(data: RepositoryAnalysisInput):
             log.info(f"Total changed files in the commit: \
                      {sum(files_extension_dict.values())}")
             # 2. check violation of allowed file types rule per commit
-            allowed_file_types = set(rules['allowedFileTypes'])
+            allowed_file_types = set(rules.allowedFileTypes)
             for ext in files_extension_dict:
                 if ext not in allowed_file_types:
                     violations['allowedFileTypes'].append(commit)
             # 7. check violation of max number of allowed files per commit
-            if sum(files_extension_dict.values()) > rules['maxFilesPerCommit']:
+            if sum(files_extension_dict.values()) > rules.maxFilesPerCommit:
                 violations['maxFilesPerCommit'].append(commit)
             
             additions, deletions = git_utils.get_number_of_new_lines(
@@ -80,10 +80,10 @@ def analyze_repository(data: RepositoryAnalysisInput):
                 data.git_access_token
             )
             # 3. check violation for min lines added overall
-            if additions - deletions < rules['minLines']:
+            if additions - deletions < rules.minLines:
                 violations['minLines'].append(commit)
             # 4. check violation for min blame per commit
-            if additions < rules['minBlame']:
+            if additions < rules.minBlame:
                 violations['minBlame'].append(commit)
 
             meaningful_lines = git_utils.getmeaningfulLines(
@@ -93,7 +93,7 @@ def analyze_repository(data: RepositoryAnalysisInput):
                 data.git_access_token
             )
             # 5. check violation for meaningful lines per commit
-            if meaningful_lines < rules['meaningfulLinesThreshold']:
+            if meaningful_lines < rules.meaningfulLinesThreshold:
                 violations['meaningfulLinesThreshold'].append(commit)
     else:
         log.info("No commits found.")
@@ -111,7 +111,7 @@ def analyze_repository(data: RepositoryAnalysisInput):
         log.info(time_diffs)
         # TODO: 6. check violation for min time difference between consecutive commits
         # minTimeBetweenCommits: 2
-        if not all(map(lambda diff: diff >= rules['minTimeBetweenCommits'], time_diffs)):
+        if not all(map(lambda diff: diff >= rules.minTimeBetweenCommits, time_diffs)):
             violations['minTimeBetweenCommits'].append(collaborator)
 
     # Return the results
