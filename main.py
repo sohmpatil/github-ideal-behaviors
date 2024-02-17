@@ -3,8 +3,9 @@ from collections import defaultdict
 import logging
 import utils.github_utils as git_utils
 import utils.rules_util as rules_utils
-from models.data_model import RepositoryAnalysisInput
 import json5
+from models.data_model import RepositoryAnalysisInput, ValidationRules
+from utils.rules_util import load_rules
 
 app = FastAPI()
 
@@ -15,7 +16,12 @@ log = logging.getLogger("main")
 
 RULES_FOLDER_PATH = './rules'
 RULES_FILE = 'Group10Rules.jsonc'
+RULES: ValidationRules  = None
 
+@app.on_event("startup")
+async def startup_event():
+    global RULES
+    RULES = load_rules(RULES_FOLDER_PATH, RULES_FILE)
 
 @app.post("/gitbehaviors")
 def analyze_repository(data: RepositoryAnalysisInput):
@@ -111,6 +117,10 @@ def analyze_repository(data: RepositoryAnalysisInput):
     # Return the results
     log.info(violations)
     return json5.dumps(violations)
+
+@app.get("/test")
+def test():
+    log.info(RULES)
 
 
 def get_dev_commits(repository_owner, repository_name, access_token):
