@@ -7,6 +7,7 @@ RULES = dict()
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("rules_util")
 
+
 def read_rules_json(rules_folder_path, rules_file):
     rules_file_path = os.path.join(rules_folder_path, rules_file)
 

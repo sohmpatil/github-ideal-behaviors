@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from collections import defaultdict
 import logging
 import utils.github_utils as git_utils
-import utils.rules_util as rules_utils
 import json5
 from models.data_model import RepositoryAnalysisInput, ValidationRules
 from utils.rules_util import load_rules
@@ -16,12 +15,14 @@ log = logging.getLogger("main")
 
 RULES_FOLDER_PATH = './rules'
 RULES_FILE = 'Group10Rules.jsonc'
-RULES: ValidationRules  = None
+RULES: ValidationRules = None
+
 
 @app.on_event("startup")
 async def startup_event():
     global RULES
     RULES = load_rules(RULES_FOLDER_PATH, RULES_FILE)
+
 
 @app.post("/gitbehaviors")
 def analyze_repository(data: RepositoryAnalysisInput):
@@ -86,7 +87,7 @@ def analyze_repository(data: RepositoryAnalysisInput):
             if additions < rules.minBlame:
                 violations['minBlame'].append(commit)
 
-            meaningful_lines = git_utils.getmeaningfulLines(
+            meaningful_lines = git_utils.get_meaningful_lines(
                 data.repository_owner,
                 data.repository_name,
                 commit,
@@ -109,8 +110,6 @@ def analyze_repository(data: RepositoryAnalysisInput):
             collaborator
         )
         log.info(time_diffs)
-        # TODO: 6. check violation for min time difference between consecutive commits
-        # minTimeBetweenCommits: 2
         if not all(map(lambda diff: diff >= rules.minTimeBetweenCommits, time_diffs)):
             violations['minTimeBetweenCommits'].append(collaborator)
 
@@ -124,7 +123,7 @@ def test():
 
 
 def get_dev_commits(repository_owner, repository_name, access_token):
-    """Get number of commits for each developer"""
+    """Gt number of commits for each developer"""
     dev_commits = {}
     developers = git_utils.get_collaborators(
         repository_owner,

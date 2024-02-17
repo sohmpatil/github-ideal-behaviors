@@ -3,15 +3,16 @@ import requests
 import os
 import collections
 import logging
-from collections import defaultdict
 
-from .comments_utils import getuncommentedLines
+
+from .comments_utils import get_uncommented_lines
 
 # Setup logger
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("github_utils")
 
 GITHUB_API_BASE_URL = 'https://api.github.com'
+
 
 def get_collaborators(repo_owner, repo_name, access_token):
     api_url = f'https://api.github.com/repos/{repo_owner}/{repo_name}/collaborators'
@@ -31,7 +32,7 @@ def get_collaborators(repo_owner, repo_name, access_token):
 
 def get_commits(owner, repo, access_token, author=''):
     page = 1
-    commit_shas = []
+    commit_sha = []
 
     while True:
         api_url = f'https://api.github.com/repos/{owner}/{repo}/commits?per_page=100&page={page}'
@@ -44,13 +45,13 @@ def get_commits(owner, repo, access_token, author=''):
             commits = response.json()
             if not commits:
                 break
-            commit_shas.extend(commit['sha'] for commit in commits)
+            commit_sha.extend(commit['sha'] for commit in commits)
             page += 1
         else:
             print(f"Error: {response.status_code}")
             return []
 
-    return commit_shas
+    return commit_sha
 
 
 def get_changed_files(owner, repo, commit_sha, access_token):
@@ -87,10 +88,10 @@ def get_number_of_new_lines(owner, repo, commit_sha, access_token):
 
         log.info(f"No. of New lines added: {additions}")
         log.info(f"No. of lines deleted: {deletions}")
-        return (additions, deletions)
+        return additions, deletions
     else:
         log.error(f"Error: {response.status_code}")
-        return (0, 0)
+        return 0, 0
 
 
 def fetch_consecutive_time_between_commits(repo_owner, repo_name, access_token, author):
@@ -144,6 +145,7 @@ def calculate_time_diffs(timestamp_list):
     ]
     return time_diffs
 
+
 def get_added_lines(owner, repo, commit_sha, access_token):
     """
         function returns dictionary with file name as key and lines added as values
@@ -170,11 +172,10 @@ def get_added_lines(owner, repo, commit_sha, access_token):
         return None
 
 
-def getmeaningfulLines(owner, repo, commit_sha, access_token):
+def get_meaningful_lines(owner, repo, commit_sha, access_token):
     files_changed = get_added_lines(owner, repo, commit_sha, access_token)
-    meaningfulLines = 0
+    meaningful_lines = 0
     for file_name, content in files_changed.items():
-        meaningfulLines += getuncommentedLines(
+        meaningful_lines += get_uncommented_lines(
             file_name, content)
-    return meaningfulLines
-
+    return meaningful_lines

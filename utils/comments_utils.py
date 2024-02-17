@@ -2,49 +2,49 @@ import os
 import re
 
 
-def getuncommentedLines(file_name, code):
+def get_uncommented_lines(file_name, code):
     file_extension = os.path.splitext(file_name)[1]
     file_type = file_extension.split('.')[1]
     if file_type == 'java':
-        return getJavaUncommentedLines(code)
+        return get_java_uncommented_lines(code)
     elif file_type == 'py':
-        return getPythonUncommentedLines(code)
+        return get_python_uncommented_lines(code)
     elif file_type == 'js':
-        return getJavaScriptUncommentedLines(code)
+        return get_javascript_uncommented_lines(code)
     elif file_type == 'html':
-        return getHTMLUncommentedLines(code)
+        return get_html_uncommented_lines(code)
     elif file_type == 'c':
-        return getCUncommentedLines(code)
+        return get_c_uncommented_lines(code)
     return 0
 
 
-def getJavaUncommentedLines(code):
+def get_java_uncommented_lines(code):
     code = re.sub(r'/\*.*?\*/\n?', '', code, flags=re.DOTALL)
     code = re.sub(r'//.*\n?', '', code)
     lines = code.splitlines()
     return len(lines)
 
 
-def getPythonUncommentedLines(code):
+def get_python_uncommented_lines(code):
     code = re.sub(r'#.*$', '', code, flags=re.MULTILINE)
     lines = code.splitlines()
     return len(lines)
 
 
-def getJavaScriptUncommentedLines(code):
+def get_javascript_uncommented_lines(code):
     code = re.sub(r'/\*.*?\*/\n?', '', code, flags=re.DOTALL)
     code = re.sub(r'//.*\n?', '', code)
     lines = code.splitlines()
     return len(lines)
 
 
-def getHTMLUncommentedLines(code):
+def get_html_uncommented_lines(code):
     code = re.sub(r'<!--.*?-->\n?', '', code, flags=re.DOTALL)
     lines = code.splitlines()
     return len(lines)
 
 
-def getCUncommentedLines(code):
+def get_c_uncommented_lines(code):
     code = re.sub(r'/\*.*?\*/\n?', '', code, flags=re.DOTALL)
     code = re.sub(r'//.*\n?', '', code)
     lines = code.splitlines()
