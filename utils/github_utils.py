@@ -87,9 +87,10 @@ def get_number_of_new_lines(owner, repo, commit_sha, access_token):
 
         log.info(f"No. of New lines added: {additions}")
         log.info(f"No. of lines deleted: {deletions}")
+        return (additions, deletions)
     else:
         log.error(f"Error: {response.status_code}")
-        return {}
+        return (0, 0)
 
 
 def fetch_consecutive_time_between_commits(repo_owner, repo_name, access_token, author):
