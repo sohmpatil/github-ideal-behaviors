@@ -4,7 +4,11 @@ import re
 
 def get_uncommented_lines(file_name, code):
     file_extension = os.path.splitext(file_name)[1]
-    file_type = file_extension.split('.')[1]
+    file = file_extension.split('.')
+    if len(file) == 2:
+        file_type = file[1]
+    else:
+        return 0
     if file_type == 'java':
         return get_java_uncommented_lines(code)
     elif file_type == 'py':
