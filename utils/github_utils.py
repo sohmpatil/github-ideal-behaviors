@@ -156,17 +156,15 @@ def get_added_lines(owner, repo, commit_sha, access_token):
 
     if response.status_code == 200:
         commit_info = response.json()
-        added_lines = dict()
+        added_lines_dict = dict()
         files_changed = commit_info['files']
         for file in files_changed:
-            if file['status'] == 'added':
-                file_url = file['raw_url']
-                file_response = requests.get(file_url)
-                if file_response.status_code == 200:
-                    added_lines[file['filename']] = file_response.text
-                else:
-                    log.error(f"Failed to retrieve file content: {file_url}")
-        return added_lines
+            patch_content = file['patch']
+            patch_lines = patch_content.split('\n')
+            added_lines = [line[1:] for line in patch_lines if line.startswith(
+                '+') and not line.startswith('+++')]
+            added_lines_dict[file['filename']] = '\n'.join(added_lines)
+        return added_lines_dict
     else:
         log.error(f"Error: {response.status_code}")
         return None
