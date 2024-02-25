@@ -26,30 +26,30 @@ def get_java_uncommented_lines(code):
     code = re.sub(r'/\*.*?\*/\n?', '', code, flags=re.DOTALL)
     code = re.sub(r'//.*\n?', '', code)
     lines = code.splitlines()
-    return len(lines)
+    return len(list(filter(lambda l: not l.isspace(), lines)))
 
 
 def get_python_uncommented_lines(code):
     code = re.sub(r'#.*$', '', code, flags=re.MULTILINE)
     lines = code.splitlines()
-    return len(lines)
+    return len(list(filter(lambda l: not l.isspace(), lines)))
 
 
 def get_javascript_uncommented_lines(code):
     code = re.sub(r'/\*.*?\*/\n?', '', code, flags=re.DOTALL)
     code = re.sub(r'//.*\n?', '', code)
     lines = code.splitlines()
-    return len(lines)
+    return len(list(filter(lambda l: not l.isspace(), lines)))
 
 
 def get_html_uncommented_lines(code):
     code = re.sub(r'<!--.*?-->\n?', '', code, flags=re.DOTALL)
     lines = code.splitlines()
-    return len(lines)
+    return len(list(filter(lambda l: not l.isspace(), lines)))
 
 
 def get_c_uncommented_lines(code):
     code = re.sub(r'/\*.*?\*/\n?', '', code, flags=re.DOTALL)
     code = re.sub(r'//.*\n?', '', code)
     lines = code.splitlines()
-    return len(lines)
+    return len(list(filter(lambda l: not l.isspace(), lines)))
