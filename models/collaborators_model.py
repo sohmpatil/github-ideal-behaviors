@@ -36,5 +36,5 @@ class ModelItem(BaseModel):
     role_name: str
 
 
-class Model(BaseModel):
+class CommitModel(BaseModel):
     __root__: List[ModelItem]
