@@ -3,6 +3,8 @@ import requests
 import os
 import collections
 import logging
+from models.collaborators_model import CommitModel  # Importing Model and ModelItem from collaborators_model module
+from models.commits_model import ComModel
 
 
 from .comments_utils import get_uncommented_lines
@@ -20,14 +22,30 @@ def get_collaborators(repo_owner, repo_name, access_token):
     response = requests.get(api_url, headers=headers)
 
     collaborators = []
+
+
     if response.status_code == 200:
         collaborators_response = response.json()
-        for collaborator in collaborators_response:
-            collaborators.append(collaborator['login'])
+        
+        # Parse JSON response into Pydantic data model
+        collaborators_model = CommitModel.parse_obj({'__root__': collaborators_response})
+       
+        for collaborator in collaborators_model.__root__:
+            collaborators.append(collaborator.login)
         return collaborators
     else:
         log.error(f"Error: {response.status_code}")
-        return collaborators
+        return []
+
+
+    # if response.status_code == 200:
+    #     collaborators_response = response.json()
+    #     for collaborator in collaborators_response:
+    #         collaborators.append(collaborator['login'])
+    #     return collaborators
+    # else:
+    #     log.error(f"Error: {response.status_code}")
+    #     return collaborators
 
 
 def get_commits(owner, repo, access_token, author=''):
@@ -42,16 +60,35 @@ def get_commits(owner, repo, access_token, author=''):
         response = requests.get(api_url, headers=headers)
 
         if response.status_code == 200:
-            commits = response.json()
-            if not commits:
+            commits_response = response.json()
+            #print("Commits response", commits_response)
+            # Parse JSON response into Pydantic data model
+        
+            commits_model = ComModel.parse_obj(commits_response)
+
+            # Extract commit SHAs from the Pydantic model
+            commit_sha.extend(commit.sha for commit in commits_model.__root__)
+
+            if not commits_response:
                 break
-            commit_sha.extend(commit['sha'] for commit in commits)
             page += 1
         else:
-            print(f"Error: {response.status_code}")
+            log.error(f"Error: {response.status_code}")
             return []
 
     return commit_sha
+
+    #     if response.status_code == 200:
+    #         commits = response.json()
+    #         if not commits:
+    #             break
+    #         commit_sha.extend(commit['sha'] for commit in commits)
+    #         page += 1
+    #     else:
+    #         print(f"Error: {response.status_code}")
+    #         return []
+
+    # return commit_sha
 
 
 def get_changed_files(owner, repo, commit_sha, access_token):
