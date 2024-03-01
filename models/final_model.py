@@ -1,0 +1,15 @@
+from __future__ import annotations
+from typing import Any, List, Optional
+from pydantic import BaseModel
+
+from .collaborators_model import Collaborator
+from .commit_details_model import CommitDetail
+
+
+class CollaboratorCommit(BaseModel):
+    collaborator: Collaborator
+    commits: List[CommitDetail]
+
+
+class CollaboratorCommitList(BaseModel):
+    data: List[CollaboratorCommit]
