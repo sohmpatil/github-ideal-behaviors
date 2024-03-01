@@ -1,13 +1,6 @@
 from pydantic import BaseModel
 from typing import List
 
-
-class RepositoryAnalysisInput(BaseModel):
-    repository_owner: str
-    repository_name: str
-    git_access_token: str
-
-
 class ValidationRules(BaseModel):
     meaningfulLinesThreshold: int
     minCommits: int
