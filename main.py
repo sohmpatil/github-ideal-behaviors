@@ -3,7 +3,8 @@ from collections import defaultdict
 import logging
 import utils.github_utils as git_utils
 import json5
-from models.data_model import RepositoryAnalysisInput, ValidationRules
+from models.bad_boys import RepositoryAnalysisInput
+from models.rules_model import ValidationRules
 from utils.rules_util import load_rules
 
 app = FastAPI()
