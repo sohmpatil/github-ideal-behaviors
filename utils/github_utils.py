@@ -3,6 +3,9 @@ import requests
 import os
 import collections
 import logging
+from models.collaborators_model import CommitModel  # Importing Model and ModelItem from collaborators_model module
+from models.commits_model import ComModel
+from models.single_commit_model import SingleCommitModel
 
 
 from .comments_utils import get_uncommented_lines
@@ -20,14 +23,30 @@ def get_collaborators(repo_owner, repo_name, access_token):
     response = requests.get(api_url, headers=headers)
 
     collaborators = []
+
+
     if response.status_code == 200:
         collaborators_response = response.json()
-        for collaborator in collaborators_response:
-            collaborators.append(collaborator['login'])
+        
+        # Parse JSON response into Pydantic data model
+        collaborators_model = CommitModel.parse_obj({'__root__': collaborators_response})
+       
+        for collaborator in collaborators_model.__root__:
+            collaborators.append(collaborator.login)
         return collaborators
     else:
         log.error(f"Error: {response.status_code}")
-        return collaborators
+        return []
+
+
+    # if response.status_code == 200:
+    #     collaborators_response = response.json()
+    #     for collaborator in collaborators_response:
+    #         collaborators.append(collaborator['login'])
+    #     return collaborators
+    # else:
+    #     log.error(f"Error: {response.status_code}")
+    #     return collaborators
 
 
 def get_commits(owner, repo, access_token, author=''):
@@ -42,16 +61,33 @@ def get_commits(owner, repo, access_token, author=''):
         response = requests.get(api_url, headers=headers)
 
         if response.status_code == 200:
-            commits = response.json()
-            if not commits:
+            commits_response = response.json()
+            #print("Commits response", commits_response)
+            # Parse JSON response into Pydantic data model
+            commits_model = ComModel.parse_obj(commits_response)
+            # Extract commit SHAs from the Pydantic model
+            commit_sha.extend(commit.sha for commit in commits_model.__root__)
+
+            if not commits_response:
                 break
-            commit_sha.extend(commit['sha'] for commit in commits)
             page += 1
         else:
-            print(f"Error: {response.status_code}")
+            log.error(f"Error: {response.status_code}")
             return []
 
     return commit_sha
+
+    #     if response.status_code == 200:
+    #         commits = response.json()
+    #         if not commits:
+    #             break
+    #         commit_sha.extend(commit['sha'] for commit in commits)
+    #         page += 1
+    #     else:
+    #         print(f"Error: {response.status_code}")
+    #         return []
+
+    # return commit_sha
 
 
 def get_changed_files(owner, repo, commit_sha, access_token):
@@ -59,18 +95,31 @@ def get_changed_files(owner, repo, commit_sha, access_token):
     headers = {'Authorization': f'token {access_token}'}
     response = requests.get(url, headers=headers)
 
+
     if response.status_code == 200:
-        commit_data = response.json()
-        files = commit_data.get('files', [])
+        commit_data = SingleCommitModel.parse_obj(response.json())
+        files = commit_data.__root__.files
         changed_files = [
-            os.path.splitext(file['filename'])[1]
+            os.path.splitext(file.filename)[1]
             for file in files
         ]
         changed_files_extension = collections.Counter(changed_files)
         return changed_files_extension
     else:
         log.error(f"Error: {response.status_code}")
-        return {}
+        return {} 
+    # if response.status_code == 200:
+    #     commit_data = response.json()
+    #     files = commit_data.get('files', [])
+    #     changed_files = [
+    #         os.path.splitext(file['filename'])[1]
+    #         for file in files
+    #     ]
+    #     changed_files_extension = collections.Counter(changed_files)
+    #     return changed_files_extension
+    # else:
+    #     log.error(f"Error: {response.status_code}")
+    #     return {}
 
 
 def get_number_of_new_lines(owner, repo, commit_sha, access_token):
@@ -80,18 +129,34 @@ def get_number_of_new_lines(owner, repo, commit_sha, access_token):
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
-        commit_data = response.json()
-        log.info(f"Commit ID: {commit_sha}")
-        lines = commit_data.get('stats', [])
-        additions = lines.get('additions', 0)
-        deletions = lines.get('deletions', 0)
-
-        log.info(f"No. of New lines added: {additions}")
-        log.info(f"No. of lines deleted: {deletions}")
-        return additions, deletions
+        commit_data = SingleCommitModel.parse_obj(response.json())
+        stats = commit_data.__root__.stats
+        if stats:
+            additions = stats.additions or 0
+            deletions = stats.deletions or 0
+            log.info(f"Commit ID: {commit_sha}")
+            log.info(f"No. of New lines added: {additions}")
+            log.info(f"No. of lines deleted: {deletions}")
+            return additions, deletions
+        else:
+            log.error("Stats not available for the commit.")
+            return 0, 0
     else:
         log.error(f"Error: {response.status_code}")
         return 0, 0
+    # if response.status_code == 200:
+    #     commit_data = response.json()
+    #     log.info(f"Commit ID: {commit_sha}")
+    #     lines = commit_data.get('stats', [])
+    #     additions = lines.get('additions', 0)
+    #     deletions = lines.get('deletions', 0)
+
+    #     log.info(f"No. of New lines added: {additions}")
+    #     log.info(f"No. of lines deleted: {deletions}")
+    #     return additions, deletions
+    # else:
+    #     log.error(f"Error: {response.status_code}")
+    #     return 0, 0
 
 
 def fetch_consecutive_time_between_commits(repo_owner, repo_name, access_token, author):
@@ -123,12 +188,20 @@ def get_commit_timestamp(owner, repo, commit_sha, access_token):
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
-        commit_data = response.json()
-        timestamp = commit_data['commit']['author'].get('date')
+        commit_data = SingleCommitModel.parse_obj(response.json())
+        timestamp = commit_data.__root__.commit.author.date
+        log.info(f"Commit timestamp: {timestamp}")
         return timestamp
     else:
         log.error(f"Error: {response.status_code}")
         return None
+    # if response.status_code == 200:
+    #     commit_data = response.json()
+    #     timestamp = commit_data['commit']['author'].get('date')
+    #     return timestamp
+    # else:
+    #     log.error(f"Error: {response.status_code}")
+    #     return None
 
 
 def calculate_time_diffs(timestamp_list):
@@ -156,18 +229,47 @@ def get_added_lines(owner, repo, commit_sha, access_token):
 
     if response.status_code == 200:
         commit_info = response.json()
-        added_lines_dict = dict()
-        files_changed = commit_info['files']
-        for file in files_changed:
-            patch_content = file['patch']
-            patch_lines = patch_content.split('\n')
-            added_lines = [line[1:] for line in patch_lines if line.startswith(
-                '+') and not line.startswith('+++')]
-            added_lines_dict[file['filename']] = '\n'.join(added_lines)
+        
+        commit_data = SingleCommitModel.parse_obj(commit_info)
+        
+        added_lines_dict = {}
+
+        for file in commit_data.__root__.files:
+            if file.patch:
+                patch_lines = file.patch.split('\n')
+                added_lines = [line[1:] for line in patch_lines if line.startswith('+') and not line.startswith('+++')]
+                added_lines_dict[file.filename] = '\n'.join(added_lines)
+
         return added_lines_dict
     else:
-        log.error(f"Error: {response.status_code}")
+        print(f"Error: {response.status_code}")
         return None
+
+    # if response.status_code == 200:
+    #     commit_info = response.json()
+    #     added_lines_dict = dict()
+    #     files_changed = commit_info['files']
+
+    #     print(files_changed)
+        
+    #     for file in files_changed:
+    #         if 'patch' in file:
+    #             patch_content = file['patch']
+    #             patch_lines = patch_content.split('\n')
+    #             added_lines = [line[1:] for line in patch_lines if line.startswith('+') and not line.startswith('+++')]
+    #             added_lines_dict[file['filename']] = '\n'.join(added_lines)
+    #     return added_lines_dict
+    #     # for file in files_changed:
+        
+    #     #     patch_content = file['patch']
+    #     #     patch_lines = patch_content.split('\n')
+    #     #     added_lines = [line[1:] for line in patch_lines if line.startswith(
+    #     #         '+') and not line.startswith('+++')]
+    #     #     added_lines_dict[file['filename']] = '\n'.join(added_lines)
+    #     # return added_lines_dict
+    # else:
+    #     log.error(f"Error: {response.status_code}")
+    #     return None
 
 
 def get_meaningful_lines(owner, repo, commit_sha, access_token):
