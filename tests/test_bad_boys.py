@@ -1,21 +1,21 @@
-import json5
+import json
 
 from models import bad_boys
 
 def test_repository_analysis_input():
-    json = {
+    json_str = """
+    {
         "repository_owner": "hardik", 
         "repository_name": "test_repo",
         "git_access_token": "some_access_token"
     }
-
-    got = bad_boys.RepositoryAnalysisInput(**json5.loads(json))
-    expected =  bad_boys.RepositoryAnalysisInput(**json5.loads( {
-        "repository_owner": "hardik", 
-        "repository_name": "test_repo",
-        "git_access_token": "some_access_token"
-    }))
-
+    """
+    got = bad_boys.RepositoryAnalysisInput(**json.loads(json_str))
+    expected =  bad_boys.RepositoryAnalysisInput(
+        repository_name="test_repo",
+        repository_owner="hardik",
+        git_access_token="some_access_token"
+    )
     assert isinstance(got, bad_boys.RepositoryAnalysisInput)
     assert got.repository_name == expected.repository_name
     assert got.repository_owner == expected.repository_owner
@@ -33,7 +33,7 @@ def test_repository_analysis_output_item():
     assert got['violated_rules'][0] == "minLines"
     assert got['violated_rules'][1] == "minBlame"
     
-    response =  json5.dumps(got)
+    response =  json.dumps(got)
     assert isinstance(response, str)
 
 
@@ -63,5 +63,5 @@ def test_repository_analysis_output_items():
     assert got[1]['violated_rules'][1] == "allowedFileTypes"
     assert got[1]['violated_rules'][2] == "maxFilesPerCommit"
 
-    response =  json5.dumps(got)
+    response =  json.dumps(got)
     assert isinstance(response, str)
