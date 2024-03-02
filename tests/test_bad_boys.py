@@ -2,6 +2,26 @@ import json5
 
 from models import bad_boys
 
+def test_repository_analysis_input():
+    json = {
+        "repository_owner": "hardik", 
+        "repository_name": "test_repo",
+        "git_access_token": "some_access_token"
+    }
+
+    got = bad_boys.RepositoryAnalysisInput(**json5.loads(json))
+    expected =  bad_boys.RepositoryAnalysisInput(**json5.loads( {
+        "repository_owner": "hardik", 
+        "repository_name": "test_repo",
+        "git_access_token": "some_access_token"
+    }))
+
+    assert isinstance(got, bad_boys.RepositoryAnalysisInput)
+    assert got.repository_name == expected.repository_name
+    assert got.repository_owner == expected.repository_owner
+    assert got.git_access_token == expected.git_access_token
+
+
 def test_repository_analysis_output_item():
     item = bad_boys.RepositoryAnalysisOutputItem(
         collaborator="smungole",
