@@ -1,7 +1,7 @@
 import logging
 import os
 import json5
-from models.data_model import ValidationRules
+from models.rules_model import ValidationRules
 RULES = dict()
 
 logging.basicConfig(level=logging.INFO)
