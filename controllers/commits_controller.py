@@ -1,8 +1,10 @@
 import requests
 from models.commits_model import CommitsList
-def get_commits(owner, repo, access_token, author=''):
+from typing import Optional
+
+def get_commits(owner, repo, access_token, author='') -> Optional[CommitsList]:
     page = 1
-    commits = []
+    commits: Optional[CommitsList] = None
 
     while True:
         api_url = f'https://api.github.com/repos/{owner}/{repo}/commits?per_page=100&page={page}'
@@ -19,6 +21,6 @@ def get_commits(owner, repo, access_token, author=''):
             page += 1
         else:
             print(f"Error: {response.status_code}")
-            return []
+            return None
 
     return commits
