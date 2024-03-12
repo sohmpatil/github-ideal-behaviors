@@ -9,3 +9,5 @@ class ValidationRules(BaseModel):
     minTimeBetweenCommits: int
     maxFilesPerCommit: int
     allowedFileTypes: List[str]
+    minPRToCreate: int
+    maxTimeToReviewPR: int
