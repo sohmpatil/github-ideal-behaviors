@@ -16,86 +16,87 @@ log = logging.getLogger("request_controller")
 
 def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRules) -> List[RepositoryAnalysisOutputItem]:
     log.info(f'rules: {rules}')
-    report = [RepositoryAnalysisOutputItem(
-        collaborator=item.collaborator.login, 
-        violated_rules=[]
+    report = [
+        RepositoryAnalysisOutputItem(
+            collaborator=item.collaborator.login, 
+            violated_rules=[]
         ) for item in info.data
     ]
 
     for index, item in enumerate(info.data):
-        # 1. check violation for min commits rule per developer
-        if violated_minCommits(len(item.commits), rules.minCommits):
+        # * 1. check violation for min commits rule per developer
+        if violated_min_commits(len(item.commits), rules.minCommits):
             report[index].violated_rules.append('minCommits')
 
         allowed_file_types = set(rules.allowedFileTypes)
         for commit_info in item.commits:
             files_extension_dict = get_changed_files(commit_info)
 
-            # 2. check violation of allowed file types rule per commit
-            if 'allowedFileTypes' not in report[index].violated_rules:
-                if violated_allowedFileTypes(files_extension_dict.keys(), allowed_file_types):
-                    report[index].violated_rules.append('allowedFileTypes')
+            # * 2. check violation of allowed file types rule per commit
+            if 'allowedFileTypes' not in report[index].violated_rules \
+                and violated_allowed_file_types(files_extension_dict.keys(), allowed_file_types):
+                report[index].violated_rules.append('allowedFileTypes')
 
-            # 7. check violation of max number of allowed files per commit
-            if 'maxFilesPerCommit' not in report[index].violated_rules:
-                if violated_maxFilesPerCommit(files_extension_dict.values(), rules.maxFilesPerCommit):
-                    report[index].violated_rules.append('maxFilesPerCommit')
+            # * 7. check violation of max number of allowed files per commit
+            if 'maxFilesPerCommit' not in report[index].violated_rules \
+                and violated_max_files_per_commit(files_extension_dict.values(), rules.maxFilesPerCommit):
+                report[index].violated_rules.append('maxFilesPerCommit')
             
             additions, deletions = get_number_of_new_lines(commit_info)
-            # 3. check violation for min lines added overall
-            if 'minLines' not in report[index].violated_rules:
-                if violated_minLines(additions, deletions, rules.minLines):
-                    report[index].violated_rules.append('minLines')
+            # * 3. check violation for min lines added overall
+            if 'minLines' not in report[index].violated_rules \
+                and violated_min_lines(additions, deletions, rules.minLines):
+                report[index].violated_rules.append('minLines')
 
-            # 4. check violation for min blame per commit
-            if 'minBlame' not in report[index].violated_rules:
-                if violated_minBlame(additions, rules.minBlame):
-                    report[index].violated_rules.append('minBlame')
+            # * 4. check violation for min blame per commit
+            if 'minBlame' not in report[index].violated_rules \
+                and violated_min_blame(additions, rules.minBlame):
+                report[index].violated_rules.append('minBlame')
 
-            # 5. check violation for meaningful lines per commit
+            # * 5. check violation for meaningful lines per commit
             meaningful_lines = get_meaningful_lines(commit_info)
-            if 'meaningfulLinesThreshold' not in report[index].violated_rules:
-                if violated_meaningfulLinesThreshold(meaningful_lines, rules.meaningfulLinesThreshold):
-                    report[index].violated_rules.append('meaningfulLinesThreshold')
+            if 'meaningfulLinesThreshold' not in report[index].violated_rules \
+                and violated_meaningful_lines_threshold(meaningful_lines, rules.meaningfulLinesThreshold):
+                report[index].violated_rules.append('meaningfulLinesThreshold')
 
-        # 6. check violation for minTimeBetweenCommits
+        # * 6. check violation for minTimeBetweenCommits
         time_diffs = fetch_consecutive_time_between_commits(item.commits)
-        if violated_minTimeBetweenCommits(time_diffs, rules.minTimeBetweenCommits):
+        if violated_min_time_between_commits(time_diffs, rules.minTimeBetweenCommits):
             report[index].violated_rules.append('minTimeBetweenCommits')
 
-
+    log.info(f'Generated report: {report}')
     return report
 
 
-def violated_meaningfulLinesThreshold(meaningful_lines: int, min_threshold: int) -> bool:
+def violated_meaningful_lines_threshold(meaningful_lines: int, min_threshold: int) -> bool:
     return meaningful_lines < min_threshold
 
 
-def violated_minBlame(additions: int, min_threshold: int) -> bool:
+def violated_min_blame(additions: int, min_threshold: int) -> bool:
     return additions < min_threshold
 
 
-def violated_minLines(additions: int, deletions: int, min_threshold: int) -> bool:
+def violated_min_lines(additions: int, deletions: int, min_threshold: int) -> bool:
     return additions - deletions < min_threshold
 
 
-def violated_maxFilesPerCommit(extension_count: List[int], max_threshold: int) -> bool:
+def violated_max_files_per_commit(extension_count: List[int], max_threshold: int) -> bool:
     return sum(extension_count) > max_threshold
 
 
-def violated_allowedFileTypes(extensions: List[str], allowed_file_types: set) -> bool:
+def violated_allowed_file_types(extensions: List[str], allowed_file_types: set) -> bool:
     for ext in extensions:
         if ext not in allowed_file_types:
             return True
     return False
 
 
-def violated_minCommits(commit_count: int, min_threshold: int) -> bool:
+def violated_min_commits(commit_count: int, min_threshold: int) -> bool:
     """Gt number of commits for each developer"""
     return commit_count < min_threshold
 
 
-def violated_minTimeBetweenCommits(time_diffs: List[float], min_threshold: int) -> bool:
+def violated_min_time_between_commits(time_diffs: List[float], min_threshold: int) -> bool:
     return not all(map(lambda diff: diff >= min_threshold, time_diffs))
 
 

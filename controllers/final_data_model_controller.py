@@ -19,7 +19,6 @@ def final_data_controller(request: RepositoryAnalysisInput) -> CollaboratorCommi
         request.git_access_token
     )
 
-    log.info(collaborators)
     for collaborator in collaborators.collaborators:
         commits_details = []
         commits = get_commits(
@@ -28,6 +27,8 @@ def final_data_controller(request: RepositoryAnalysisInput) -> CollaboratorCommi
             request.git_access_token,
             collaborator.login
         )
+        log.info(f'{collaborator.login}: {len(commits.commits) if commits else 0} commits.')
+
         for commit in commits.commits:
             commit_detail = get_commit_details(
                 request.repository_owner,
