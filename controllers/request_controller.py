@@ -124,7 +124,7 @@ def calculate_time_diffs(timestamp_list: List[str]) -> List[float]:
         (timestamps[i+1] - timestamps[i]).total_seconds() / 3600
         for i in range(len(timestamps)-1)
     ]
-    return time_diffs
+    return list(reversed(time_diffs))
 
 
 def get_meaningful_lines(commit_info: CommitDetail) -> int:
