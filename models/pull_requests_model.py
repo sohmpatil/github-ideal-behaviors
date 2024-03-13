@@ -17,8 +17,9 @@ class PullRequests(BaseModel):
     @classmethod
     def parse_obj(cls, obj):
         user = obj.get('user', {}).get('login', '')
-        assignees = [assignee.get('login', '')
-                     for assignee in obj.get('assignees', [])]
+        assignees = [
+            assignee.get('login', '') for assignee in obj.get('assignees', [])
+        ]
         return super().parse_obj({**obj, 'creator': user, 'pr_assignees': assignees})
 
 
