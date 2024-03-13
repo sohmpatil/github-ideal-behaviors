@@ -44,6 +44,39 @@ def test_violated_min_time_between_commits():
     assert not rc.violated_min_time_between_commits([3, 4, 6, 8, 10], 1)
 
 
+def test_violated_max_time_to_review_pr():
+    assert rc.violated_max_time_to_review_pr(10, 5)
+    assert not rc.violated_max_time_to_review_pr(10, 10)
+    assert not rc.violated_max_time_to_review_pr(5, 5)
+
+
+def test_to_datetime():
+    got = rc.to_datetime('2022-12-05T06:25:57Z')
+    assert got.year == 2022
+    assert got.month == 12
+    assert got.day == 5
+    assert got.hour == 6
+    assert got.minute == 25
+    assert got.second == 57
+
+
+def test_time_difference():
+    dt1 = rc.to_datetime('2022-12-05T06:00:00Z')
+    dt2 = rc.to_datetime('2022-12-06T06:00:00Z')
+    got = rc.time_difference(dt1, dt2)
+    assert got == 24
+
+
+def test_pr_review_time():
+    ts1 = '2022-12-05T07:00:00Z'
+    ts2 = '2022-12-06T07:00:00Z'
+    got = rc.pr_review_time(ts1, ts2)
+    assert got == 24
+
+    got = rc.pr_review_time(ts1, None)
+    assert got > 24
+
+
 def test_calculate_time_diffs():
     assert len(rc.calculate_time_diffs([])) == 0
 

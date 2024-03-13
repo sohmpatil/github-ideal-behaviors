@@ -8,7 +8,7 @@ from models.bad_boys import RepositoryAnalysisOutputItem
 from models.rules_model import ValidationRules
 from models.final_model import CommitDetail
 from utils.comments_utils import get_uncommented_lines
-from typing import List
+from typing import List, Optional
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("request_controller")
@@ -37,32 +37,38 @@ def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRule
                 and violated_allowed_file_types(files_extension_dict.keys(), allowed_file_types):
                 report[index].violated_rules.append('allowedFileTypes')
 
-            # * 7. check violation of max number of allowed files per commit
+            # * 3. check violation of max number of allowed files per commit
             if 'maxFilesPerCommit' not in report[index].violated_rules \
                 and violated_max_files_per_commit(files_extension_dict.values(), rules.maxFilesPerCommit):
                 report[index].violated_rules.append('maxFilesPerCommit')
             
             additions, deletions = get_number_of_new_lines(commit_info)
-            # * 3. check violation for min lines added overall
+            # * 4. check violation for min lines added overall
             if 'minLines' not in report[index].violated_rules \
                 and violated_min_lines(additions, deletions, rules.minLines):
                 report[index].violated_rules.append('minLines')
 
-            # * 4. check violation for min blame per commit
+            # * 5. check violation for min blame per commit
             if 'minBlame' not in report[index].violated_rules \
                 and violated_min_blame(additions, rules.minBlame):
                 report[index].violated_rules.append('minBlame')
 
-            # * 5. check violation for meaningful lines per commit
+            # * 6. check violation for meaningful lines per commit
             meaningful_lines = get_meaningful_lines(commit_info)
             if 'meaningfulLinesThreshold' not in report[index].violated_rules \
                 and violated_meaningful_lines_threshold(meaningful_lines, rules.meaningfulLinesThreshold):
                 report[index].violated_rules.append('meaningfulLinesThreshold')
 
-        # * 6. check violation for minTimeBetweenCommits
+        # * 7. check violation for minTimeBetweenCommits
         time_diffs = fetch_consecutive_time_between_commits(item.commits)
         if violated_min_time_between_commits(time_diffs, rules.minTimeBetweenCommits):
             report[index].violated_rules.append('minTimeBetweenCommits')
+
+        # * 8. check violation for maxTimeToReviewPR
+        for pr in item.pr_assigned:
+            td = pr_review_time(pr.created_at, pr.closed_at)
+            if violated_max_time_to_review_pr(td, rules.maxTimeToReviewPR):
+                report[index].violated_rules.append('maxTimeToReviewPR')
 
     log.info(f'Generated report: {report}')
     return report
@@ -100,6 +106,10 @@ def violated_min_time_between_commits(time_diffs: List[float], min_threshold: in
     return not all(map(lambda diff: diff >= min_threshold, time_diffs))
 
 
+def violated_max_time_to_review_pr(review_time: float, max_threshold: int) -> bool:
+    return review_time > max_threshold
+
+
 def fetch_consecutive_time_between_commits(commits: List[CommitDetail]) -> List[float]:
     timestamp_list = []
     for commit_info in commits:
@@ -111,17 +121,32 @@ def fetch_consecutive_time_between_commits(commits: List[CommitDetail]) -> List[
         return time_diffs
     else:
         return []
+    
+
+def to_datetime(timestamp: str) -> datetime.datetime:
+    return datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+
+
+def time_difference(first: datetime.datetime, second: datetime.datetime) -> float:
+    return (second - first).total_seconds() / 3600
+
+
+def pr_review_time(created_at: str, closed_at: Optional[str]) -> float:
+    pr_opened = to_datetime(created_at)
+    if closed_at:
+        pr_closed = to_datetime(closed_at)
+    else:
+        pr_closed = datetime.datetime.now(tz=pr_opened.tzinfo)
+
+    return time_difference(pr_opened, pr_closed)
 
 
 def calculate_time_diffs(timestamp_list: List[str]) -> List[float]:
     # Convert strings to datetime objects
-    timestamps = [
-        datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%SZ")
-        for ts in timestamp_list[::-1]
-    ]
+    timestamps = [to_datetime(ts) for ts in timestamp_list[::-1]]
     # Calculate time differences in hours
     time_diffs = [
-        (timestamps[i+1] - timestamps[i]).total_seconds() / 3600
+        time_difference(timestamps[i], timestamps[i + 1])
         for i in range(len(timestamps)-1)
     ]
     return list(reversed(time_diffs))
