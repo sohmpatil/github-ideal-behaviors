@@ -27,7 +27,7 @@ def test_repository_analysis_output_item():
         collaborator="smungole",
         violated_rules=["minLines", "minBlame"]
     )
-    got = item.model_dump()
+    got = item.dict()
     assert got['collaborator'] == 'smungole'
     assert len(got['violated_rules']) == 2
     assert got['violated_rules'][0] == "minLines"
@@ -48,7 +48,7 @@ def test_repository_analysis_output_items():
             violated_rules=["minTimeBetweenCommits", "allowedFileTypes", "maxFilesPerCommit"]
         )
     ]
-    got = list(map(lambda item: item.model_dump(), items))
+    got = list(map(lambda item: item.dict(), items))
     
     assert len(got) == 2
 
