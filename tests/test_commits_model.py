@@ -1,6 +1,4 @@
-from typing import List
 import json
-from pydantic import BaseModel
 
 from models import commits_model
 

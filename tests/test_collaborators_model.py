@@ -1,4 +1,4 @@
-import json5
+import json
 
 from models import collaborators_model
 
@@ -8,7 +8,7 @@ def test_collaborator():
         "login": "smungole"
     }
     """
-    to_dict = json5.loads(json_str)
+    to_dict = json.loads(json_str)
     got = collaborators_model.Collaborator(**to_dict)
     expected = collaborators_model.Collaborator(login='smungole')
 
@@ -29,7 +29,7 @@ def test_collaborators():
         ]
     }
     """
-    to_dict = json5.loads(json_str)
+    to_dict = json.loads(json_str)
     got = collaborators_model.CollaboratorsList(**to_dict)
     expected = collaborators_model.CollaboratorsList(collaborators=[
         collaborators_model.Collaborator(login='smungole'),

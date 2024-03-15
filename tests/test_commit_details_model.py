@@ -1,4 +1,4 @@
-import json5
+import json
 
 from models import commit_details_model
 
@@ -38,7 +38,7 @@ def test_commit_details():
         ]
     }
     """
-    to_dict = json5.loads(json_str)
+    to_dict = json.loads(json_str)
     from pprint import pprint
     pprint(to_dict)
     got = commit_details_model.CommitDetail(**to_dict)

@@ -1,4 +1,4 @@
-import json5
+import json
 from models import rules_model
 
 def test_validation_rules():
@@ -15,7 +15,7 @@ def test_validation_rules():
         "maxTimeToReviewPR": 720
     }
     """
-    to_dict = json5.loads(json_str)
+    to_dict = json.loads(json_str)
     from pprint import pprint
     pprint(to_dict)
     got = rules_model.ValidationRules(**to_dict)
