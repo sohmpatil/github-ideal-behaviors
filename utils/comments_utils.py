@@ -24,32 +24,45 @@ def get_uncommented_lines(file_name, code):
 
 def get_java_uncommented_lines(code):
     code = re.sub(r'/\*.*?\*/\n?', '', code, flags=re.DOTALL)
-    code = re.sub(r'//.*\n?', '', code)
+    uncommented_lines = 0
     lines = code.splitlines()
-    return len(list(filter(lambda l: not l.isspace(), lines)))
+    for line in lines:
+        line = re.sub(r'//.*', '', line)
+        if not line.isspace() and not len(line) == 0:
+            uncommented_lines += 1
+    return uncommented_lines
 
 
 def get_python_uncommented_lines(code):
     code = re.sub(r'#.*$', '', code, flags=re.MULTILINE)
     lines = code.splitlines()
-    return len(list(filter(lambda l: not l.isspace(), lines)))
+    return len(list(filter(lambda l: not l.isspace() and not len(l) == 0, lines)))
 
 
 def get_javascript_uncommented_lines(code):
     code = re.sub(r'/\*.*?\*/\n?', '', code, flags=re.DOTALL)
-    code = re.sub(r'//.*\n?', '', code)
+    uncommented_lines = 0
     lines = code.splitlines()
-    return len(list(filter(lambda l: not l.isspace(), lines)))
+    for line in lines:
+        line = re.sub(r'//.*', '', line)
+        if not line.isspace() and not len(line) == 0:
+            uncommented_lines += 1
+    return uncommented_lines
 
 
 def get_html_uncommented_lines(code):
     code = re.sub(r'<!--.*?-->\n?', '', code, flags=re.DOTALL)
     lines = code.splitlines()
-    return len(list(filter(lambda l: not l.isspace(), lines)))
+    return len(list(filter(lambda l: not l.isspace() and not len(l) == 0, lines)))
 
 
 def get_c_uncommented_lines(code):
-    code = re.sub(r'/\*.*?\*/\n?', '', code, flags=re.DOTALL)
-    code = re.sub(r'//.*\n?', '', code)
+    code = re.sub(r'/\*.*?\*/', '', code, flags=re.DOTALL)
+    uncommented_lines = 0
     lines = code.splitlines()
-    return len(list(filter(lambda l: not l.isspace(), lines)))
+    for line in lines:
+        line = re.sub(r'//.*', '', line)
+        if not line.isspace() and not len(line) == 0:
+            uncommented_lines += 1
+    return uncommented_lines
+
