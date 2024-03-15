@@ -4,7 +4,7 @@ import collections
 import datetime
 
 from models.final_model import CollaboratorCommitList
-from models.bad_boys import RepositoryAnalysisOutputItem
+from models.bad_boys import RepositoryAnalysisOutputItem, RepositoryAnalysisOutputItemVerbose
 from models.rules_model import ValidationRules
 from models.final_model import CommitDetail
 from utils.comments_utils import get_uncommented_lines
@@ -63,6 +63,62 @@ def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRule
         time_diffs = fetch_consecutive_time_between_commits(item.commits)
         if violated_min_time_between_commits(time_diffs, rules.minTimeBetweenCommits):
             report[index].violated_rules.append('minTimeBetweenCommits')
+
+        # * 8. check violation for maxTimeToReviewPR
+        for pr in item.pr_assigned:
+            td = pr_review_time(pr.created_at, pr.closed_at)
+            if violated_max_time_to_review_pr(td, rules.maxTimeToReviewPR):
+                report[index].violated_rules.append('maxTimeToReviewPR')
+
+    log.info(f'Generated report: {report}')
+    return report
+
+def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: ValidationRules) -> List[RepositoryAnalysisOutputItemVerbose]:
+    log.info(f'rules: {rules}')
+    report = [
+        RepositoryAnalysisOutputItemVerbose(
+            collaborator=item.collaborator.login, 
+            violated_rules={}
+        ) for item in info.data
+    ]
+
+    for index, item in enumerate(info.data):
+        # * 1. check violation for min commits rule per developer
+        if violated_min_commits(len(item.commits), rules.minCommits):
+            report[index].violated_rules['minCommits'] = None
+
+        allowed_file_types = set(rules.allowedFileTypes)
+        for commit_info in item.commits:
+            files_extension_dict = get_changed_files(commit_info)
+
+            # * 2. check violation of allowed file types rule per commit
+            if violated_allowed_file_types(files_extension_dict.keys(), allowed_file_types):
+                log.info(commit_info.sha)
+                report[index].violated_rules['allowedFileTypes'].append(commit_info.sha)
+
+
+            # * 3. check violation of max number of allowed files per commit
+            if violated_max_files_per_commit(files_extension_dict.values(), rules.maxFilesPerCommit):
+                report[index].violated_rules['maxFilesPerCommit'].append(commit_info.sha)
+            
+            additions, deletions = get_number_of_new_lines(commit_info)
+            # * 4. check violation for min lines added overall
+            if violated_min_lines(additions, deletions, rules.minLines):
+                report[index].violated_rules['minLines'].append(commit_info.sha)
+
+            # * 5. check violation for min blame per commit
+            if violated_min_blame(additions, rules.minBlame):
+                report[index].violated_rules['minBlame'].append(commit_info.sha)
+
+            # * 6. check violation for meaningful lines per commit
+            meaningful_lines = get_meaningful_lines(commit_info)
+            if violated_meaningful_lines_threshold(meaningful_lines, rules.meaningfulLinesThreshold):
+                report[index].violated_rules['meaningfulLinesThreshold'].append(commit_info.sha)
+
+        # * 7. check violation for minTimeBetweenCommits
+        time_diffs = fetch_consecutive_time_between_commits(item.commits)
+        if violated_min_time_between_commits(time_diffs, rules.minTimeBetweenCommits):
+            report[index].violated_rules['minTimeBetweenCommits'] = None
 
         # * 8. check violation for maxTimeToReviewPR
         for pr in item.pr_assigned:
