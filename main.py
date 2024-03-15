@@ -4,7 +4,7 @@ from models.bad_boys import RepositoryAnalysisInput
 from models.rules_model import ValidationRules
 from utils.rules_util import load_rules
 from controllers.final_data_model_controller import final_data_controller
-from controllers.request_controller import get_bad_behaviour_report
+from controllers.request_controller import get_bad_behaviour_report, get_bad_behaviour_report_verbose
 app = FastAPI()
 
 
@@ -29,6 +29,15 @@ def analyze_repository(request: RepositoryAnalysisInput):
     data = final_data_controller(request)
     # get_report
     report = get_bad_behaviour_report(data, rules=RULES)
+    # return
+    return report
+
+@app.post("/gitbehaviorsverbose")
+def analyze_repository(request: RepositoryAnalysisInput):
+    # Final data model
+    data = final_data_controller(request)
+    # get_report
+    report = get_bad_behaviour_report_verbose(data, rules=RULES)
     # return
     return report
 
