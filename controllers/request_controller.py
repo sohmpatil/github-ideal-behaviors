@@ -22,7 +22,7 @@ def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRule
             violated_rules=[]
         ) for item in info.data
     ]
-
+    collaborator_pr_count_dict = collections.defaultdict(int)
     for index, item in enumerate(info.data):
         # * 1. check violation for min commits rule per developer
         if violated_min_commits(len(item.commits), rules.minCommits):
@@ -58,18 +58,25 @@ def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRule
             if 'meaningfulLinesThreshold' not in report[index].violated_rules \
                 and violated_meaningful_lines_threshold(meaningful_lines, rules.meaningfulLinesThreshold):
                 report[index].violated_rules.append('meaningfulLinesThreshold')
-
+            
         # * 7. check violation for minTimeBetweenCommits
         time_diffs = fetch_consecutive_time_between_commits(item.commits)
         if violated_min_time_between_commits(time_diffs, rules.minTimeBetweenCommits):
             report[index].violated_rules.append('minTimeBetweenCommits')
 
-        # * 8. check violation for maxTimeToReviewPR
         for pr in item.pr_assigned:
+            if pr_opened_in_last_sprint(pr.created_at):
+                collaborator_pr_count_dict[item.collaborator.login] += 1
+
+            # * 8. check violation for maxTimeToReviewPR
             td = pr_review_time(pr.created_at, pr.closed_at)
             if violated_max_time_to_review_pr(td, rules.maxTimeToReviewPR):
                 report[index].violated_rules.append('maxTimeToReviewPR')
 
+    # * 9. check violation for minPRToCreate
+    for index, item in enumerate(info.data):
+        if collaborator_pr_count_dict[item.collaborator.login] < rules.minPRToCreate:
+            report[index].violated_rules.append('minPRToCreate')
     log.info(f'Generated report: {report}')
     return report
 
@@ -81,7 +88,7 @@ def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: Valida
             violated_rules={}
         ) for item in info.data
     ]
-
+    collaborator_pr_count_dict = collections.defaultdict(int)
     for index, item in enumerate(info.data):
         # * 1. check violation for min commits rule per developer
         if violated_min_commits(len(item.commits), rules.minCommits):
@@ -120,11 +127,19 @@ def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: Valida
         if violated_min_time_between_commits(time_diffs, rules.minTimeBetweenCommits):
             report[index].violated_rules['minTimeBetweenCommits'] = None
 
-        # * 8. check violation for maxTimeToReviewPR
         for pr in item.pr_assigned:
+            if pr_opened_in_last_sprint(pr.created_at):
+                collaborator_pr_count_dict[item.collaborator.login] += 1
+
+            # * 8. check violation for maxTimeToReviewPR
             td = pr_review_time(pr.created_at, pr.closed_at)
             if violated_max_time_to_review_pr(td, rules.maxTimeToReviewPR):
-                report[index].violated_rules.append('maxTimeToReviewPR')
+                report[index].violated_rules['maxTimeToReviewPR'] = None
+
+    # * 9. check violation for minPRToCreate
+    for index, item in enumerate(info.data):
+        if collaborator_pr_count_dict[item.collaborator.login] < rules.minPRToCreate:
+            report[index].violated_rules['minPRToCreate'] = None
 
     log.info(f'Generated report: {report}')
     return report
@@ -196,6 +211,15 @@ def pr_review_time(created_at: str, closed_at: Optional[str]) -> float:
 
     return time_difference(pr_opened, pr_closed)
 
+def pr_opened_in_last_sprint(created_at: str) -> bool:
+    # Convert the created_at string to a datetime object
+    pr_opened = to_datetime(created_at)
+    
+    # Calculate the date 14 days ago from today
+    fourteen_days_ago = datetime.datetime.now() - datetime.timedelta(days=14)
+    
+    # Check if the PR was created in the last 14 days
+    return pr_opened >= fourteen_days_ago
 
 def calculate_time_diffs(timestamp_list: List[str]) -> List[float]:
     # Convert strings to datetime objects
