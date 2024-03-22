@@ -11,3 +11,4 @@ class ValidationRules(BaseModel):
     allowedFileTypes: List[str]
     minPRToCreate: int
     maxTimeToReviewPR: int
+    maxIssuesOpened: int
