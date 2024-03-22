@@ -16,3 +16,9 @@ class CollaboratorCommit(BaseModel):
 
 class CollaboratorCommitList(BaseModel):
     data: List[CollaboratorCommit]
+
+
+class IndividualCollaboratorCommit(BaseModel):
+    commits: List[CommitDetail]
+    pr_created: Optional[List[PullRequests]]
+    pr_assigned: Optional[List[PullRequests]]

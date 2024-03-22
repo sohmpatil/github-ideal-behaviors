@@ -65,4 +65,3 @@ def get_c_uncommented_lines(code):
         if not line.isspace() and not len(line) == 0:
             uncommented_lines += 1
     return uncommented_lines
-

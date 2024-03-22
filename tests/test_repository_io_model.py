@@ -1,6 +1,6 @@
 import json
 
-from models import bad_boys
+from models import repository_io_model
 
 def test_repository_analysis_input():
     json_str = """
@@ -10,20 +10,20 @@ def test_repository_analysis_input():
         "git_access_token": "some_access_token"
     }
     """
-    got = bad_boys.RepositoryAnalysisInput(**json.loads(json_str))
-    expected =  bad_boys.RepositoryAnalysisInput(
+    got = repository_io_model.RepositoryAnalysisInput(**json.loads(json_str))
+    expected =  repository_io_model.RepositoryAnalysisInput(
         repository_name="test_repo",
         repository_owner="hardik",
         git_access_token="some_access_token"
     )
-    assert isinstance(got, bad_boys.RepositoryAnalysisInput)
+    assert isinstance(got, repository_io_model.RepositoryAnalysisInput)
     assert got.repository_name == expected.repository_name
     assert got.repository_owner == expected.repository_owner
     assert got.git_access_token == expected.git_access_token
 
 
 def test_repository_analysis_output_item():
-    item = bad_boys.RepositoryAnalysisOutputItem(
+    item = repository_io_model.RepositoryAnalysisOutputItem(
         collaborator="smungole",
         violated_rules=["minLines", "minBlame"]
     )
@@ -39,11 +39,11 @@ def test_repository_analysis_output_item():
 
 def test_repository_analysis_output_items():
     items = [
-        bad_boys.RepositoryAnalysisOutputItem(
+        repository_io_model.RepositoryAnalysisOutputItem(
             collaborator="smungole",
             violated_rules=["minLines", "minBlame"]
         ),
-        bad_boys.RepositoryAnalysisOutputItem(
+        repository_io_model.RepositoryAnalysisOutputItem(
             collaborator="hsakhuja",
             violated_rules=["minTimeBetweenCommits", "allowedFileTypes", "maxFilesPerCommit"]
         )
