@@ -1,7 +1,7 @@
 import logging
 
-from models.final_model import CollaboratorCommit, CollaboratorCommitList
-from models.bad_boys import RepositoryAnalysisInput
+from models.collaborator_commit_model import CollaboratorCommit, CollaboratorCommitList, IndividualCollaboratorCommit
+from models.repository_io_model import RepositoryAnalysisInput, RepositoryAnalysisIndividualInput
 from controllers.commit_details_controller import get_commit_details
 from controllers.commits_controller import get_commits
 from controllers.collaborators_controller import get_collaborators
@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("final_data_controller")
 
 
-def final_data_controller(request: RepositoryAnalysisInput) -> CollaboratorCommitList:
+def collaborator_data_controller(request: RepositoryAnalysisInput) -> CollaboratorCommitList:
     final_data = []
 
     collaborators = get_collaborators(
@@ -62,3 +62,8 @@ def final_data_controller(request: RepositoryAnalysisInput) -> CollaboratorCommi
  
     final_data_model = CollaboratorCommitList(data=final_data)
     return final_data_model
+
+
+
+def collaborator_individual_data_controller(request: RepositoryAnalysisIndividualInput) -> IndividualCollaboratorCommit:
+    pass

@@ -3,10 +3,10 @@ import os
 import collections
 import datetime
 
-from models.final_model import CollaboratorCommitList
-from models.bad_boys import RepositoryAnalysisOutputItem, RepositoryAnalysisOutputItemVerbose
+from models.collaborator_commit_model import CollaboratorCommitList, IndividualCollaboratorCommitList
+from models.repository_io_model import RepositoryAnalysisIndividualOutputItem, RepositoryAnalysisOutputItem, RepositoryAnalysisOutputItemVerbose
 from models.rules_model import ValidationRules
-from models.final_model import CommitDetail
+from models.collaborator_commit_model import CommitDetail
 from utils.comments_utils import get_uncommented_lines
 from typing import List, Optional
 
@@ -80,6 +80,7 @@ def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRule
     log.info(f'Generated report: {report}')
     return report
 
+
 def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: ValidationRules) -> List[RepositoryAnalysisOutputItemVerbose]:
     log.info(f'rules: {rules}')
     report = [
@@ -143,6 +144,10 @@ def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: Valida
 
     log.info(f'Generated report: {report}')
     return report
+
+
+def get_bad_behaviour_report_individual(info: IndividualCollaboratorCommitList, rules: ValidationRules) -> List[RepositoryAnalysisIndividualOutputItem]:
+    pass
 
 
 def violated_meaningful_lines_threshold(meaningful_lines: int, min_threshold: int) -> bool:

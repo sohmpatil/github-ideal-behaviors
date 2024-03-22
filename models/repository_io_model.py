@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import DefaultDict, Dict, List, Optional, Tuple
+from typing import DefaultDict, List
 from pydantic import BaseModel
 
 
@@ -7,6 +7,17 @@ class RepositoryAnalysisInput(BaseModel):
     repository_owner: str
     repository_name: str
     git_access_token: str
+
+
+class RepositoryAnalysisIndividualInput(BaseModel):
+    repository_owner: str
+    repository_name: str
+    git_access_token: str
+    collaborator_username: str
+
+
+class RepositoryAnalysisIndividualOutputItem(BaseModel):
+    violated_rules: List[str]
 
 
 class RepositoryAnalysisOutputItem(BaseModel):

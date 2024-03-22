@@ -32,3 +32,28 @@ curl -X 'POST' \
   "git_access_token": "string"
 }'
 ```
+
+```
+curl -X 'POST' \
+  'http://127.0.0.1:8000/gitbehaviorsverbose' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "repository_owner": "string",
+  "repository_name": "string",
+  "git_access_token": "string"
+}'
+```
+
+```
+curl -X 'POST' \
+  'http://127.0.0.1:8000/gitbehaviorsindividual' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "repository_owner": "string",
+  "repository_name": "string",
+  "git_access_token": "string",
+  "collaborator_username": "string"
+}'
+```
