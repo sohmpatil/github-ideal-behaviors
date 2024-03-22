@@ -8,7 +8,7 @@ from controllers.collaborators_controller import get_collaborators
 from controllers.pull_requests_controller import get_pull_requests
 
 logging.basicConfig(level=logging.INFO)
-log = logging.getLogger("final_data_controller")
+log = logging.getLogger("collaborator_data_model_controller")
 
 
 def collaborator_data_controller(request: RepositoryAnalysisInput) -> CollaboratorCommitList:
