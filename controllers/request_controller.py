@@ -3,7 +3,7 @@ import os
 import collections
 import datetime
 
-from models.collaborator_commit_model import CollaboratorCommitList, IndividualCollaboratorCommitList
+from models.collaborator_commit_model import CollaboratorCommitList, IndividualCollaboratorCommit
 from models.repository_io_model import RepositoryAnalysisIndividualOutputItem, RepositoryAnalysisOutputItem, RepositoryAnalysisOutputItemVerbose
 from models.rules_model import ValidationRules
 from models.collaborator_commit_model import CommitDetail
@@ -64,11 +64,12 @@ def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRule
         if violated_min_time_between_commits(time_diffs, rules.minTimeBetweenCommits):
             report[index].violated_rules.append('minTimeBetweenCommits')
 
-        for pr in item.pr_assigned:
+        for pr in item.pr_created:
             if pr_opened_in_last_sprint(pr.created_at):
                 collaborator_pr_count_dict[item.collaborator.login] += 1
 
-            # * 8. check violation for maxTimeToReviewPR
+        # * 8. check violation for maxTimeToReviewPR
+        for pr in item.pr_assigned:
             td = pr_review_time(pr.created_at, pr.closed_at)
             if violated_max_time_to_review_pr(td, rules.maxTimeToReviewPR):
                 report[index].violated_rules.append('maxTimeToReviewPR')
@@ -128,11 +129,12 @@ def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: Valida
         if violated_min_time_between_commits(time_diffs, rules.minTimeBetweenCommits):
             report[index].violated_rules['minTimeBetweenCommits'] = None
 
-        for pr in item.pr_assigned:
+        for pr in item.pr_created:
             if pr_opened_in_last_sprint(pr.created_at):
                 collaborator_pr_count_dict[item.collaborator.login] += 1
 
-            # * 8. check violation for maxTimeToReviewPR
+        # * 8. check violation for maxTimeToReviewPR
+        for pr in item.pr_assigned:
             td = pr_review_time(pr.created_at, pr.closed_at)
             if violated_max_time_to_review_pr(td, rules.maxTimeToReviewPR):
                 report[index].violated_rules['maxTimeToReviewPR'] = None
@@ -146,8 +148,64 @@ def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: Valida
     return report
 
 
-def get_bad_behaviour_report_individual(info: IndividualCollaboratorCommitList, rules: ValidationRules) -> List[RepositoryAnalysisIndividualOutputItem]:
-    pass
+def get_bad_behaviour_report_individual(info: IndividualCollaboratorCommit, rules: ValidationRules) -> RepositoryAnalysisIndividualOutputItem:
+    report = RepositoryAnalysisIndividualOutputItem(
+        violated_rules=[]
+    )
+    # * 1. check violation for min commits rule
+    if violated_min_commits(len(info.commits), rules.minCommits):
+            report.violated_rules.append("minCommits")
+    allowed_file_types = set(rules.allowedFileTypes)
+    for commit_info in info.commits:
+        files_extension_dict = get_changed_files(commit_info)
+
+        # * 2. check violation of allowed file types rule per commit
+        if 'allowedFileTypes' not in report.violated_rules \
+            and violated_allowed_file_types(files_extension_dict.keys(), allowed_file_types):
+            report.violated_rules.append('allowedFileTypes')
+
+        # * 3. check violation of max number of allowed files per commit
+        if 'maxFilesPerCommit' not in report.violated_rules \
+            and violated_max_files_per_commit(files_extension_dict.values(), rules.maxFilesPerCommit):
+            report.violated_rules.append('maxFilesPerCommit')
+        
+        additions, deletions = get_number_of_new_lines(commit_info)
+        # * 4. check violation for min lines added overall
+        if 'minLines' not in report.violated_rules \
+            and violated_min_lines(additions, deletions, rules.minLines):
+            report.violated_rules.append('minLines')
+
+        # * 5. check violation for min blame per commit
+        if 'minBlame' not in report.violated_rules \
+            and violated_min_blame(additions, rules.minBlame):
+            report.violated_rules.append('minBlame')
+
+        # * 6. check violation for meaningful lines per commit
+        meaningful_lines = get_meaningful_lines(commit_info)
+        if 'meaningfulLinesThreshold' not in report.violated_rules \
+            and violated_meaningful_lines_threshold(meaningful_lines, rules.meaningfulLinesThreshold):
+            report.violated_rules.append('meaningfulLinesThreshold')
+    
+    # * 7. check violation for minTimeBetweenCommits
+    time_diffs = fetch_consecutive_time_between_commits(info.commits)
+    if violated_min_time_between_commits(time_diffs, rules.minTimeBetweenCommits):
+        report.violated_rules.append('minTimeBetweenCommits')
+    
+    pr_count = 0
+    for pr in info.pr_created:
+        if pr_opened_in_last_sprint(pr.created_at):
+            pr_count += 1
+    
+    # * 8. check violation for maxTimeToReviewPR
+    for pr in info.pr_assigned:
+        td = pr_review_time(pr.created_at, pr.closed_at)
+        if violated_max_time_to_review_pr(td, rules.maxTimeToReviewPR):
+            report.violated_rules.append('maxTimeToReviewPR')
+
+    # * 9. check violation for minPRToCreate
+    if pr_count < rules.minPRToCreate:
+        report.violated_rules.append('minPRToCreate')
+    return report
 
 
 def violated_meaningful_lines_threshold(meaningful_lines: int, min_threshold: int) -> bool:

@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 import logging
-from models.repository_io_model import RepositoryAnalysisInput
+from models.repository_io_model import RepositoryAnalysisInput, RepositoryAnalysisIndividualInput
 from models.rules_model import ValidationRules
 from utils.rules_util import load_rules
-from controllers.collaborator_data_model_controller import collaborator_data_controller
+from controllers.collaborator_data_model_controller import collaborator_data_controller, collaborator_individual_data_controller
 from controllers.request_controller import get_bad_behaviour_report, get_bad_behaviour_report_verbose, get_bad_behaviour_report_individual
 app = FastAPI()
 
@@ -41,9 +41,11 @@ def analyze_repository(request: RepositoryAnalysisInput):
     # return
     return report
 
-@app.post("/gitbehaviorsindvidual")
-def analyze_repository(request: RepositoryAnalysisInput):
-    pass
+@app.post("/gitbehaviorsindividual")
+def analyze_repository(request: RepositoryAnalysisIndividualInput):
+    data = collaborator_individual_data_controller(request)
+    report = get_bad_behaviour_report_individual(data, rules=RULES)
+    return report
 
 @app.get("/test")
 def test():

@@ -22,7 +22,3 @@ class IndividualCollaboratorCommit(BaseModel):
     commits: List[CommitDetail]
     pr_created: Optional[List[PullRequests]]
     pr_assigned: Optional[List[PullRequests]]
-
-
-class IndividualCollaboratorCommitList(BaseModel):
-    data: List[IndividualCollaboratorCommit]
