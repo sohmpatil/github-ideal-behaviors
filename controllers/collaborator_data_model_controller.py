@@ -4,7 +4,7 @@ from models.collaborator_commit_model import CollaboratorCommit, CollaboratorCom
 from models.repository_io_model import RepositoryAnalysisInput, RepositoryAnalysisIndividualInput
 from controllers.commit_details_controller import get_commit_details
 from controllers.commits_controller import get_commits
-from controllers.controller_issues import get_issues
+from controllers.issues_controller import get_issues
 from controllers.collaborators_controller import get_collaborators
 from controllers.pull_requests_controller import get_pull_requests
 
@@ -59,16 +59,20 @@ def collaborator_data_controller(request: RepositoryAnalysisInput) -> Collaborat
                 pr_assigned.append(pull_request)
 
         issue_assigned = []
+        issue_created = []
 
         for issue in issues.issues:
             if issue.assignee.login == collaborator.login:
                 issue_assigned.append(issue)
+            if issue.user.login == collaborator.login:
+                issue_created.append(issue)
 
         collaborator_commit = CollaboratorCommit(
             collaborator=collaborator, 
             commits=commits_details,
             pr_created=pr_created,
             pr_assigned=pr_assigned,
+            issue_created=issue_created,
             issue_assigned=issue_assigned
         )
         final_data.append(collaborator_commit)
@@ -116,16 +120,17 @@ def collaborator_individual_data_controller(request: RepositoryAnalysisIndividua
         request.git_access_token
     )
     issue_assigned = []
-
+    issue_created = []
     for issue in issues.issues:
-        print(issue.assignee.login, request.collaborator_username)
         if issue.assignee.login == request.collaborator_username:
             issue_assigned.append(issue)
-
+        if issue.user.login == request.collaborator_username:
+            issue_created.append(issue)
     collaborator_commit = IndividualCollaboratorCommit(
         commits=commits_details,
         pr_created=pr_created,
         pr_assigned=pr_assigned,
+        issue_created=issue_created,
         issue_assigned=issue_assigned
     )
     return collaborator_commit

@@ -13,6 +13,7 @@ class CollaboratorCommit(BaseModel):
     commits: List[CommitDetail]
     pr_created: Optional[List[PullRequests]]
     pr_assigned: Optional[List[PullRequests]]
+    issue_created: Optional[List[Issue]]
     issue_assigned: Optional[List[Issue]]
 
 
@@ -24,4 +25,5 @@ class IndividualCollaboratorCommit(BaseModel):
     commits: List[CommitDetail]
     pr_created: Optional[List[PullRequests]]
     pr_assigned: Optional[List[PullRequests]]
+    issue_created: Optional[List[Issue]]
     issue_assigned: Optional[List[Issue]]
