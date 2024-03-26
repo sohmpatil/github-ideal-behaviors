@@ -17,6 +17,7 @@
         ],
         "minPRToCreate": 1, // The minimum number of Pull Requests (PR) that a developer is expected to make in a sprint
         "maxTimeToReviewPR": 24, // The max time (in hours) from when a PR is opened until it is closed (the assignee is the user to flag if this is violated)
-        "maxIssuesOpened": 5 // If a user opened more than this many issues during the sprint, flag it as a potential issue
+        "maxIssuesOpened": 5, // If a user opened more than this many issues during the sprint, flag it as a potential issue
+        "maxTimeToResolveIssue" : 24 // The max time (in hours) from when an issue is opened until it is closed (the assignee is the user to flag if this is violated)
     }
 }
