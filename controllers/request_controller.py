@@ -23,6 +23,7 @@ def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRule
         ) for item in info.data
     ]
     collaborator_pr_count_dict = collections.defaultdict(int)
+    collaborator_issue_count_dict = collections.defaultdict(int)
     for index, item in enumerate(info.data):
         # * 1. check violation for min commits rule per developer
         if violated_min_commits(len(item.commits), rules.minCommits):
@@ -74,6 +75,10 @@ def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRule
             if violated_max_time(td, rules.maxTimeToReviewPR):
                 report[index].violated_rules.append('maxTimeToReviewPR')
         
+        for issue in item.issue_created:
+            if issue_opened_in_last_sprint(issue.created_at):
+                collaborator_issue_count_dict[item.collaborator.login] += 1
+
         for issue in item.issue_assigned:
             td = review_resolve_time(issue.created_at, issue.closed_at)
             if violated_max_time(td, rules.maxTimeToResolveIssue):
@@ -83,6 +88,12 @@ def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRule
     for index, item in enumerate(info.data):
         if collaborator_pr_count_dict[item.collaborator.login] < rules.minPRToCreate:
             report[index].violated_rules.append('minPRToCreate')
+
+    # * 10. check violation for maxIssuesOpened
+    for index, item in enumerate(info.data):
+        if collaborator_issue_count_dict[item.collaborator.login] > rules.maxIssuesOpened:
+            report[index].violated_rules.append('maxIssuesOpened')
+    
     log.info(f'Generated report: {report}')
     return report
 
@@ -96,6 +107,7 @@ def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: Valida
         ) for item in info.data
     ]
     collaborator_pr_count_dict = collections.defaultdict(int)
+    collaborator_issue_count_dict = collections.defaultdict(int)
     for index, item in enumerate(info.data):
         # * 1. check violation for min commits rule per developer
         if violated_min_commits(len(item.commits), rules.minCommits):
@@ -138,6 +150,10 @@ def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: Valida
             if pr_opened_in_last_sprint(pr.created_at):
                 collaborator_pr_count_dict[item.collaborator.login] += 1
 
+        for issue in item.issue_created:
+            if issue_opened_in_last_sprint(issue.created_at):
+                collaborator_issue_count_dict[item.collaborator.login] += 1
+
         # * 8. check violation for maxTimeToReviewPR
         for pr in item.pr_assigned:
             td = review_resolve_time(pr.created_at, pr.closed_at)
@@ -154,6 +170,11 @@ def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: Valida
         if collaborator_pr_count_dict[item.collaborator.login] < rules.minPRToCreate:
             report[index].violated_rules['minPRToCreate'] = None
 
+    # * 10. check violation for maxIssuesOpened
+    for index, item in enumerate(info.data):
+        if collaborator_issue_count_dict[item.collaborator.login] > rules.maxIssuesOpened:
+            report[index].violated_rules.append('maxIssuesOpened')
+    
     log.info(f'Generated report: {report}')
     return report
 
@@ -206,6 +227,11 @@ def get_bad_behaviour_report_individual(info: IndividualCollaboratorCommit, rule
         if pr_opened_in_last_sprint(pr.created_at):
             pr_count += 1
     
+    issue_count = 0
+    for issue in info.issue_created:
+        if issue_opened_in_last_sprint(issue.created_at):
+            issue_count += 1
+    
     # * 8. check violation for maxTimeToReviewPR
     for pr in info.pr_assigned:
         td = review_resolve_time(pr.created_at, pr.closed_at)
@@ -220,8 +246,12 @@ def get_bad_behaviour_report_individual(info: IndividualCollaboratorCommit, rule
     # * 9. check violation for minPRToCreate
     if pr_count < rules.minPRToCreate:
         report.violated_rules.append('minPRToCreate')
-    return report
 
+    # * 10. check violation for maxIssuesOpened
+    if issue_count > rules.maxIssuesOpened:
+        report.violated_rules.append('maxIssuesOpened')
+        
+    return report
 
 def violated_meaningful_lines_threshold(meaningful_lines: int, min_threshold: int) -> bool:
     return meaningful_lines < min_threshold
@@ -298,6 +328,16 @@ def pr_opened_in_last_sprint(created_at: str) -> bool:
     
     # Check if the PR was created in the last 14 days
     return pr_opened >= fourteen_days_ago
+
+def issue_opened_in_last_sprint(created_at: str) -> bool:
+    # Convert the created_at string to a datetime object
+    issue_opened = to_datetime(created_at)
+    
+    # Calculate the date 14 days ago from today
+    fourteen_days_ago = datetime.datetime.now() - datetime.timedelta(days=14)
+    
+    # Check if the PR was created in the last 14 days
+    return issue_opened >= fourteen_days_ago
 
 def calculate_time_diffs(timestamp_list: List[str]) -> List[float]:
     # Convert strings to datetime objects
