@@ -44,10 +44,10 @@ def test_violated_min_time_between_commits():
     assert not rc.violated_min_time_between_commits([3, 4, 6, 8, 10], 1)
 
 
-def test_violated_max_time_to_review_pr():
-    assert rc.violated_max_time_to_review_pr(10, 5)
-    assert not rc.violated_max_time_to_review_pr(10, 10)
-    assert not rc.violated_max_time_to_review_pr(5, 5)
+def test_violated_max_time():
+    assert rc.violated_max_time(10, 5)
+    assert not rc.violated_max_time(10, 10)
+    assert not rc.violated_max_time(5, 5)
 
 
 def test_to_datetime():
@@ -67,13 +67,13 @@ def test_time_difference():
     assert got == 24
 
 
-def test_pr_review_time():
+def test_review_resolve_time():
     ts1 = '2022-12-05T07:00:00Z'
     ts2 = '2022-12-06T07:00:00Z'
-    got = rc.pr_review_time(ts1, ts2)
+    got = rc.review_resolve_time(ts1, ts2)
     assert got == 24
 
-    got = rc.pr_review_time(ts1, None)
+    got = rc.review_resolve_time(ts1, None)
     assert got > 24
 
 

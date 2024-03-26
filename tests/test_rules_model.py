@@ -12,7 +12,9 @@ def test_validation_rules():
         "maxFilesPerCommit": 5,
         "allowedFileTypes": ["py", "md"],
         "minPRToCreate": 2,
-        "maxTimeToReviewPR": 720
+        "maxTimeToReviewPR": 720,
+        "maxIssuesOpened": 10,
+        "maxTimeToResolveIssue": 50
     }
     """
     to_dict = json.loads(json_str)
@@ -30,3 +32,5 @@ def test_validation_rules():
     assert got.allowedFileTypes == ["py", "md"]
     assert got.minPRToCreate == 2
     assert got.maxTimeToReviewPR == 720
+    assert got.maxIssuesOpened == 10
+    assert got.maxTimeToResolveIssue == 50
