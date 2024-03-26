@@ -12,3 +12,4 @@ class ValidationRules(BaseModel):
     minPRToCreate: int
     maxTimeToReviewPR: int
     maxIssuesOpened: int
+    maxTimeToResolveIssue: int

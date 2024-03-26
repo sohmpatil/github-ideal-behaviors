@@ -4,6 +4,7 @@ from models.collaborator_commit_model import CollaboratorCommit, CollaboratorCom
 from models.repository_io_model import RepositoryAnalysisInput, RepositoryAnalysisIndividualInput
 from controllers.commit_details_controller import get_commit_details
 from controllers.commits_controller import get_commits
+from controllers.controller_issues import get_issues
 from controllers.collaborators_controller import get_collaborators
 from controllers.pull_requests_controller import get_pull_requests
 
@@ -20,6 +21,11 @@ def collaborator_data_controller(request: RepositoryAnalysisInput) -> Collaborat
         request.git_access_token
     )
     pull_requests = get_pull_requests(
+        request.repository_owner,
+        request.repository_name,
+        request.git_access_token
+    )
+    issues = get_issues(
         request.repository_owner,
         request.repository_name,
         request.git_access_token
@@ -52,17 +58,23 @@ def collaborator_data_controller(request: RepositoryAnalysisInput) -> Collaborat
             elif collaborator.login in pull_request.pr_assignees:
                 pr_assigned.append(pull_request)
 
+        issue_assigned = []
+
+        for issue in issues.issues:
+            if issue.assignee.login == collaborator.login:
+                issue_assigned.append(issue)
+
         collaborator_commit = CollaboratorCommit(
             collaborator=collaborator, 
             commits=commits_details,
             pr_created=pr_created,
-            pr_assigned=pr_assigned
+            pr_assigned=pr_assigned,
+            issue_assigned=issue_assigned
         )
         final_data.append(collaborator_commit)
  
     final_data_model = CollaboratorCommitList(data=final_data)
     return final_data_model
-
 
 
 def collaborator_individual_data_controller(request: RepositoryAnalysisIndividualInput) -> IndividualCollaboratorCommit:
@@ -98,9 +110,22 @@ def collaborator_individual_data_controller(request: RepositoryAnalysisIndividua
         elif request.collaborator_username in pull_request.pr_assignees:
             pr_assigned.append(pull_request)
 
+    issues = get_issues(
+        request.repository_owner,
+        request.repository_name,
+        request.git_access_token
+    )
+    issue_assigned = []
+
+    for issue in issues.issues:
+        print(issue.assignee.login, request.collaborator_username)
+        if issue.assignee.login == request.collaborator_username:
+            issue_assigned.append(issue)
+
     collaborator_commit = IndividualCollaboratorCommit(
         commits=commits_details,
         pr_created=pr_created,
-        pr_assigned=pr_assigned
+        pr_assigned=pr_assigned,
+        issue_assigned=issue_assigned
     )
     return collaborator_commit

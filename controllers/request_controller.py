@@ -70,9 +70,14 @@ def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRule
 
         # * 8. check violation for maxTimeToReviewPR
         for pr in item.pr_assigned:
-            td = pr_review_time(pr.created_at, pr.closed_at)
-            if violated_max_time_to_review_pr(td, rules.maxTimeToReviewPR):
+            td = review_resolve_time(pr.created_at, pr.closed_at)
+            if violated_max_time(td, rules.maxTimeToReviewPR):
                 report[index].violated_rules.append('maxTimeToReviewPR')
+        
+        for issue in item.issue_assigned:
+            td = review_resolve_time(issue.created_at, issue.closed_at)
+            if violated_max_time(td, rules.maxTimeToResolveIssue):
+                report[index].violated_rules.append('maxTimeToResolveIssue')
 
     # * 9. check violation for minPRToCreate
     for index, item in enumerate(info.data):
@@ -135,9 +140,14 @@ def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: Valida
 
         # * 8. check violation for maxTimeToReviewPR
         for pr in item.pr_assigned:
-            td = pr_review_time(pr.created_at, pr.closed_at)
-            if violated_max_time_to_review_pr(td, rules.maxTimeToReviewPR):
+            td = review_resolve_time(pr.created_at, pr.closed_at)
+            if violated_max_time(td, rules.maxTimeToReviewPR):
                 report[index].violated_rules['maxTimeToReviewPR'] = None
+
+        for issue in item.issue_assigned:
+            td = review_resolve_time(issue.created_at, issue.closed_at)
+            if violated_max_time(td, rules.maxTimeToResolveIssue):
+                report[index].violated_rules['maxTimeToResolveIssue'] = None
 
     # * 9. check violation for minPRToCreate
     for index, item in enumerate(info.data):
@@ -198,9 +208,14 @@ def get_bad_behaviour_report_individual(info: IndividualCollaboratorCommit, rule
     
     # * 8. check violation for maxTimeToReviewPR
     for pr in info.pr_assigned:
-        td = pr_review_time(pr.created_at, pr.closed_at)
-        if violated_max_time_to_review_pr(td, rules.maxTimeToReviewPR):
+        td = review_resolve_time(pr.created_at, pr.closed_at)
+        if violated_max_time(td, rules.maxTimeToReviewPR):
             report.violated_rules.append('maxTimeToReviewPR')
+
+    for issue in info.issue_assigned:
+        td = review_resolve_time(issue.created_at, issue.closed_at)
+        if violated_max_time(td, rules.maxTimeToResolveIssue):
+            report.violated_rules.append('maxTimeToResolveIssue')
 
     # * 9. check violation for minPRToCreate
     if pr_count < rules.minPRToCreate:
@@ -240,7 +255,7 @@ def violated_min_time_between_commits(time_diffs: List[float], min_threshold: in
     return not all(map(lambda diff: diff >= min_threshold, time_diffs))
 
 
-def violated_max_time_to_review_pr(review_time: float, max_threshold: int) -> bool:
+def violated_max_time(review_time: float, max_threshold: int) -> bool:
     return review_time > max_threshold
 
 
@@ -265,7 +280,7 @@ def time_difference(first: datetime.datetime, second: datetime.datetime) -> floa
     return (second - first).total_seconds() / 3600
 
 
-def pr_review_time(created_at: str, closed_at: Optional[str]) -> float:
+def review_resolve_time(created_at: str, closed_at: Optional[str]) -> float:
     pr_opened = to_datetime(created_at)
     if closed_at:
         pr_closed = to_datetime(closed_at)
