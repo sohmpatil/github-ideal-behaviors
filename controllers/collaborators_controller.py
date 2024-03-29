@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("collaborators_contoller")
 
 
-def get_collaborators(repo_owner, repo_name, access_token):
+def get_collaborators(repo_owner, repo_name, access_token, requests=requests) -> CollaboratorsList:
     api_url = f'https://api.github.com/repos/{repo_owner}/{repo_name}/collaborators'
     headers = {'Authorization': f'token {access_token}'}
     response = requests.get(api_url, headers=headers)
@@ -18,4 +18,4 @@ def get_collaborators(repo_owner, repo_name, access_token):
         return collaborators
     else:
         log.error(f"Error: {response.status_code}")
-        return []
+        return CollaboratorsList(collaborators=[])

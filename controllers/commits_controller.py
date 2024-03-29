@@ -1,10 +1,15 @@
 import requests
-from models.commits_model import CommitsList
-from typing import Optional
+import logging
 
-def get_commits(owner, repo, access_token, author='') -> Optional[CommitsList]:
+from models.commits_model import CommitsList
+
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("commits_controller")
+
+
+def get_commits(owner, repo, access_token, author='', requests=requests) -> CommitsList:
     page = 1
-    commits: Optional[CommitsList] = None
+    commits = CommitsList(commits=[])
 
     while True:
         api_url = f'https://api.github.com/repos/{owner}/{repo}/commits?per_page=100&page={page}'
@@ -20,7 +25,7 @@ def get_commits(owner, repo, access_token, author='') -> Optional[CommitsList]:
             commits = CommitsList(commits=commits_response)
             page += 1
         else:
-            print(f"Error: {response.status_code}")
-            return None
+            log.error(f"Error: {response.status_code}")
+            return CommitsList(commits=[])
 
     return commits

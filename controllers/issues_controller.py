@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("issues_contoller")
 
 
-def get_issues(repo_owner, repo_name, access_token):
+def get_issues(repo_owner, repo_name, access_token, requests=requests) -> IssueList:
     api_url = f'https://api.github.com/repos/{repo_owner}/{repo_name}/issues'
     headers = {'Authorization': f'token {access_token}'}
     response = requests.get(api_url, headers=headers)
@@ -18,4 +18,4 @@ def get_issues(repo_owner, repo_name, access_token):
         return issues
     else:
         log.error(f"Error: {response.status_code}")
-        return []
+        return IssueList(issues=[])
