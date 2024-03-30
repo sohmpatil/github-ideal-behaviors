@@ -15,15 +15,29 @@ class MockResponse:
     
     _mock_response: dict[str, str] = {
         "MockPullRequestsResponse": """
-        {
-            "creator": "rhish9h",
-            "id": 1143972904,
-            "pr_assignees": ["test1", "test2"],
-            "created_at": "2022-12-03T03:33:04Z",
-            "closed_at": "2022-12-03T03:33:55Z",
-            "state": "closed",
-            "merge_commit_sha": "e89f7a33d84b4057b8cfe9074a8b38f45bcb7804"
-        }
+        [
+            {
+                "assignees": [
+                    { "login": "test1" },
+                    { "login": "test2" }
+                ],
+                "closed_at": "2022-12-03T03:33:55Z",
+                "created_at": "2022-12-03T03:33:04Z",
+                "id": 1143972904,
+                "merge_commit_sha": "e89f7a33d84b4057b8cfe9074a8b38f45bcb7804",
+                "state": "closed",
+                "user": { "login": "rhish9h" }
+            },
+            {
+                "assignees": [
+                    { "login": "test1" }
+                ],
+                "created_at": "2024-03-26T11:20:00Z",
+                "id": 1143944226,
+                "state": "open",
+                "user": { "login": "sanket8397" }
+            }
+        ]
         """,
         "MockIssuesResponse": r"""
         {
