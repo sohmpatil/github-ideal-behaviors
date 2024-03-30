@@ -1,6 +1,6 @@
 import json
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Union
 
 
 class MockResponse:
@@ -160,7 +160,7 @@ print(mock_response.json())
 mock_response_func: Optional[Callable[[], MockResponse]] = None
 
 
-def get(url: str, headers: dict[str, str]) -> (MockResponse | None):
+def get(url: str, headers: dict[str, str]) -> Union[MockResponse, None]:
     """This mocks the requests.get() method"""
     _ = url, headers
     if mock_response_func:
