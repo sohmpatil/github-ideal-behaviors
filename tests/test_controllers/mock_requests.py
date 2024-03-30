@@ -40,50 +40,48 @@ class MockResponse:
         ]
         """,
         "MockIssuesResponse": r"""
-        {
-            "issues": [
-                {
-                    "id": 2203316067,
-                    "user": {
-                        "login": "sanket8397"
-                    },
-                    "assignee": {
-                        "login": "sanket8397"
-                    },
-                    "assignees": [
-                        {
-                            "login": "sanket8397"
-                        },
-                        {
-                            "login": "sanikag123"
-                        }
-                    ],
-                    "closed_at": null,
-                    "created_at": "2024-03-22T20:57:28Z",
-                    "updated_at": "2024-03-22T20:57:28Z"
+        [
+            {
+                "id": 2203316067,
+                "user": {
+                    "login": "sanket8397"
                 },
-                {
-                    "id": 124,
-                    "user": {
-                        "login": "test"
+                "assignee": {
+                    "login": "sanket8397"
+                },
+                "assignees": [
+                    {
+                        "login": "sanket8397"
                     },
-                    "assignee": null,
-                    "assignees": [],
-                    "closed_at": null,
-                    "created_at": "2024-03-21T11:45:00Z",
-                    "updated_at": "2024-03-23T09:20:00Z"
-                }
-            ]
-        }
+                    {
+                        "login": "sanikag123"
+                    }
+                ],
+                "closed_at": null,
+                "created_at": "2024-03-22T20:57:28Z",
+                "updated_at": "2024-03-22T20:57:28Z"
+            },
+            {
+                "id": 124,
+                "user": {
+                    "login": "test"
+                },
+                "assignee": null,
+                "assignees": [],
+                "closed_at": null,
+                "created_at": "2024-03-21T11:45:00Z",
+                "updated_at": "2024-03-23T09:20:00Z"
+            }
+        ]
         """,
         "MockCommitsResponse": """
         {
             "commits": [
                 {
-                "sha" : "some_sha1"  
+                    "sha" : "some_sha1"  
                 },
                 {
-                "sha" : "some_sha2"  
+                    "sha" : "some_sha2"  
                 }
             ]
         }
