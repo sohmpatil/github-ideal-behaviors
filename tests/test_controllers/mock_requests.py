@@ -75,16 +75,14 @@ class MockResponse:
         ]
         """,
         "MockCommitsResponse": """
-        {
-            "commits": [
-                {
-                    "sha" : "some_sha1"  
-                },
-                {
-                    "sha" : "some_sha2"  
-                }
-            ]
-        }
+        [
+            {
+                "sha" : "some_sha1"  
+            },
+            {
+                "sha" : "some_sha2"  
+            }
+        ]
         """,
         "MockCommitDetailsResponse": r"""
         {
@@ -134,6 +132,19 @@ class MockResponse:
         }
         """
     }
+
+
+class MockCommitsResponse(MockResponse):
+    is_empty = False
+
+    def json(self) -> Any:
+        if not __class__.is_empty:
+            response = super()._mock_response.get(self.response_key)
+            __class__.is_empty = True
+            return json.loads(response)
+        else:
+            __class__.is_empty = False
+            return json.loads('{}')
 
 
 """
