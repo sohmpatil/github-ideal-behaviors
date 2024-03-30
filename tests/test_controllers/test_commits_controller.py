@@ -24,9 +24,11 @@ def test_get_commits_success():
         requests=mock_requests
     )
 
-    assert len(got.commits)
+    assert len(got.commits) == 4
     assert got.commits[0].sha == expected.commits[0].sha
     assert got.commits[1].sha == expected.commits[1].sha
+    assert got.commits[2].sha == expected.commits[0].sha
+    assert got.commits[3].sha == expected.commits[1].sha
 
 
 def test_get_commits_empty():

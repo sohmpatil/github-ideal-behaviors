@@ -135,15 +135,16 @@ class MockResponse:
 
 
 class MockCommitsResponse(MockResponse):
-    is_empty = False
+    curr_page = 0
+    total_pages = 2
 
     def json(self) -> Any:
-        if not __class__.is_empty:
+        if __class__.curr_page < __class__.total_pages:
             response = super()._mock_response.get(self.response_key)
-            __class__.is_empty = True
+            __class__.curr_page += 1
             return json.loads(response)
         else:
-            __class__.is_empty = False
+            __class__.curr_page = 0
             return json.loads('{}')
 
 
