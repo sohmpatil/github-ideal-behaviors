@@ -22,10 +22,11 @@ def get_commits(owner, repo, access_token, author='', requests=requests) -> Comm
             commits_response = response.json()
             if not commits_response:
                 break
-            commits = CommitsList(commits=commits_response)
+            new_commits = CommitsList(commits=commits_response)
+            commits.commits.extend(new_commits.commits)
             page += 1
         else:
             log.error(f"Error: {response.status_code}")
-            return CommitsList(commits=[])
+            return commits
 
     return commits

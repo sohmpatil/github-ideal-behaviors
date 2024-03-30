@@ -15,64 +15,74 @@ class MockResponse:
     
     _mock_response: dict[str, str] = {
         "MockPullRequestsResponse": """
-        {
-            "creator": "rhish9h",
-            "id": 1143972904,
-            "pr_assignees": ["test1", "test2"],
-            "created_at": "2022-12-03T03:33:04Z",
-            "closed_at": "2022-12-03T03:33:55Z",
-            "state": "closed",
-            "merge_commit_sha": "e89f7a33d84b4057b8cfe9074a8b38f45bcb7804"
-        }
+        [
+            {
+                "assignees": [
+                    { "login": "test1" },
+                    { "login": "test2" }
+                ],
+                "closed_at": "2022-12-03T03:33:55Z",
+                "created_at": "2022-12-03T03:33:04Z",
+                "id": 1143972904,
+                "merge_commit_sha": "e89f7a33d84b4057b8cfe9074a8b38f45bcb7804",
+                "state": "closed",
+                "user": { "login": "rhish9h" }
+            },
+            {
+                "assignees": [
+                    { "login": "test1" }
+                ],
+                "created_at": "2024-03-26T11:20:00Z",
+                "id": 1143944226,
+                "state": "open",
+                "user": { "login": "sanket8397" }
+            }
+        ]
         """,
         "MockIssuesResponse": r"""
-        {
-            "issues": [
-                {
-                    "id": 2203316067,
-                    "user": {
-                        "login": "sanket8397"
-                    },
-                    "assignee": {
-                        "login": "sanket8397"
-                    },
-                    "assignees": [
-                        {
-                            "login": "sanket8397"
-                        },
-                        {
-                            "login": "sanikag123"
-                        }
-                    ],
-                    "closed_at": null,
-                    "created_at": "2024-03-22T20:57:28Z",
-                    "updated_at": "2024-03-22T20:57:28Z"
+        [
+            {
+                "id": 2203316067,
+                "user": {
+                    "login": "sanket8397"
                 },
-                {
-                    "id": 124,
-                    "user": {
-                        "login": "test"
+                "assignee": {
+                    "login": "sanket8397"
+                },
+                "assignees": [
+                    {
+                        "login": "sanket8397"
                     },
-                    "assignee": null,
-                    "assignees": [],
-                    "closed_at": null,
-                    "created_at": "2024-03-21T11:45:00Z",
-                    "updated_at": "2024-03-23T09:20:00Z"
-                }
-            ]
-        }
+                    {
+                        "login": "sanikag123"
+                    }
+                ],
+                "closed_at": null,
+                "created_at": "2024-03-22T20:57:28Z",
+                "updated_at": "2024-03-22T20:57:28Z"
+            },
+            {
+                "id": 124,
+                "user": {
+                    "login": "test"
+                },
+                "assignee": null,
+                "assignees": [],
+                "closed_at": null,
+                "created_at": "2024-03-21T11:45:00Z",
+                "updated_at": "2024-03-23T09:20:00Z"
+            }
+        ]
         """,
         "MockCommitsResponse": """
-        {
-            "commits": [
-                {
+        [
+            {
                 "sha" : "some_sha1"  
-                },
-                {
+            },
+            {
                 "sha" : "some_sha2"  
-                }
-            ]
-        }
+            }
+        ]
         """,
         "MockCommitDetailsResponse": r"""
         {
@@ -122,6 +132,20 @@ class MockResponse:
         }
         """
     }
+
+
+class MockCommitsResponse(MockResponse):
+    curr_page = 0
+    total_pages = 2
+
+    def json(self) -> Any:
+        if __class__.curr_page < __class__.total_pages:
+            response = super()._mock_response.get(self.response_key)
+            __class__.curr_page += 1
+            return json.loads(response)
+        else:
+            __class__.curr_page = 0
+            return json.loads('{}')
 
 
 """
