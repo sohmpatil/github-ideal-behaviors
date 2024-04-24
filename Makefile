@@ -11,7 +11,11 @@ install:
 # Run development server	
 run:
 	python -m uvicorn main:app --reload
-	
+
+# Create executable file	
+executable:
+	pip install pyinstaller
+	pyinstaller main.py
 # Help	
 help:
 	@echo "Available commands:"
