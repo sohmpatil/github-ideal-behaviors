@@ -1,5 +1,5 @@
 # Project name
-PROJECT_NAME = github-deal-behaviours
+PROJECT_NAME = github-ideal-behaviours
 
 # Python requirements
 REQUIREMENTS = requirements.txt

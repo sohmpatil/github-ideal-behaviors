@@ -25,20 +25,14 @@ async def startup_event():
 
 @app.post("/gitbehaviors")
 def analyze_repository(request: RepositoryAnalysisInput):
-    # Final data model
     data = collaborator_data_controller(request)
-    # get_report
     report = get_bad_behaviour_report(data, rules=RULES)
-    # return
     return report
 
 @app.post("/gitbehaviorsverbose")
 def analyze_repository(request: RepositoryAnalysisInput):
-    # Final data model
     data = collaborator_data_controller(request)
-    # get_report
     report = get_bad_behaviour_report_verbose(data, rules=RULES)
-    # return
     return report
 
 @app.post("/gitbehaviorsindividual")
