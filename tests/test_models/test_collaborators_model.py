@@ -3,6 +3,13 @@ import json
 from models import collaborators_model
 
 def test_collaborator():
+    """
+    Tests the creation and properties of a Collaborator object.
+
+    This function creates a Collaborator object with sample data and asserts
+    that the object's properties match the expected values. It checks the login
+    property of the Collaborator object.
+    """
     json_str = """
     {
         "login": "smungole"
@@ -17,6 +24,14 @@ def test_collaborator():
 
 
 def test_collaborators():
+    """
+    Tests the creation and properties of a CollaboratorsList object.
+
+    This function creates a CollaboratorsList object with sample data and asserts
+    that the object's properties match the expected values. It checks the number of
+    collaborators in the list and the login property of each Collaborator object
+    within the list.
+    """
     json_str = """
     {
         "collaborators": [

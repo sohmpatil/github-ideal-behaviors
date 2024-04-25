@@ -5,7 +5,16 @@ from models.pull_requests_model import PullRequestsList, PullRequests
 
 
 def test_get_pull_requests_success():
-    """Test get_pull_requests() method for a successful response."""
+    """
+    Test the get_pull_requests() method to ensure it successfully retrieves a list of pull requests.
+
+    This test case mocks a successful response from the GitHub API and checks if the method correctly
+    parses the response and returns a PullRequestsList object with the expected pull requests. It verifies the
+    length of the pull requests list and the details of each pull request to ensure they match the expected values.
+
+    Returns:
+        None
+    """
     expected = PullRequestsList(pull_requests=[
         PullRequests(
             creator="rhish9h",
@@ -59,8 +68,15 @@ def test_get_pull_requests_success():
 
 
 def test_get_pull_requests_empty():
-    """Test get_pull_requests() method for an invalid status_code."""
-    # * Setup mock request and response
+    """
+    Test the get_pull_requests() method to ensure it handles an empty response correctly.
+
+    This test case mocks a response with a 401 status code, simulating an unauthorized request. It checks
+    if the method correctly handles this case and returns an empty PullRequestsList object.
+
+    Returns:
+        None
+    """
     mock_requests.mock_response_func = lambda: mock_requests.MockResponse(
         status_code=401,
         response_key="MockPullRequestsResponse"

@@ -5,7 +5,16 @@ from models.issues_model import IssueList, Issue, User, Assignee
 
 
 def test_get_issues_success():
-    """Test get_issues() method for a successful response."""
+    """
+    Test the get_issues() method to ensure it successfully retrieves a list of issues.
+
+    This test case mocks a successful response from the GitHub API and checks if the method correctly
+    parses the response and returns an IssueList object with the expected issues. It verifies the
+    length of the issues list and the details of each issue to ensure they match the expected values.
+
+    Returns:
+        None
+    """
     expected = IssueList(issues=[
         Issue(
             id=2203316067,
@@ -63,8 +72,15 @@ def test_get_issues_success():
 
 
 def test_get_issues_empty():
-    """Test get_issues() method for an invalid status_code."""
-    # * Setup mock request and response
+    """
+    Test the get_issues() method to ensure it handles an empty response correctly.
+
+    This test case mocks a response with a 401 status code, simulating an unauthorized request. It checks
+    if the method correctly handles this case and returns an empty IssueList object.
+
+    Returns:
+        None
+    """
     mock_requests.mock_response_func = lambda: mock_requests.MockResponse(
         status_code=401,
         response_key="MockIssuesResponse"

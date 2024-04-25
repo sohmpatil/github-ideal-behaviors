@@ -2,7 +2,14 @@ import json
 from models import collaborator_commit_model
 
 def test_collaborator_commit():
-    # Sample data for CollaboratorCommit
+    """
+    Tests the creation and properties of a CollaboratorCommit object.
+
+    This function creates a CollaboratorCommit object with sample data and asserts
+    that the object's properties match the expected values. It checks the collaborator's
+    login, the number and details of commits, pull requests created and assigned,
+    and issues created and assigned.
+    """
     data = {
         "collaborator": {"login": "sanikag123"},
         "commits": [{"sha": "e89f7a33d84b4057b8cfe9074a8b38f45bcb7804"}],
@@ -35,6 +42,13 @@ def test_collaborator_commit():
     assert collaborator_commit.issue_assigned[0].assignees[0].login == "sohmpatil"
 
 def test_individual_collaborator_commit():
+    """
+    Tests the creation and properties of an IndividualCollaboratorCommit object.
+
+    This function creates an IndividualCollaboratorCommit object with sample data and asserts
+    that the object's properties match the expected values. It checks the number and details of
+    commits, pull requests created and assigned, and issues created and assigned.
+    """
     data = {
         "commits": [{"sha": "abcdef"}],
         "pr_created": [{"id": 123, "created_at": "2022-01-01T00:00:00Z", "state": "open"}],
@@ -65,6 +79,13 @@ def test_individual_collaborator_commit():
     assert individual_collaborator_commit.issue_assigned[0].assignees[0].login == "sohmpatil"
 
 def test_collaborator_commit_list():
+    """
+    Tests the creation and properties of a CollaboratorCommitList object.
+
+    This function creates a CollaboratorCommitList object with sample data and asserts
+    that the object's properties match the expected values. It checks the number of items in
+    the list and the properties of each CollaboratorCommit object within the list.
+    """
     data = {
         "data": [
             {

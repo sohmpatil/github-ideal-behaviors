@@ -5,13 +5,20 @@ from models.commits_model import CommitsList, Commit
 
 
 def test_get_commits_success():
-    """Test get_commits() method for a successful response."""
+    """
+    Test the get_commits() method to ensure it successfully retrieves a list of commits.
+
+    This test case mocks a successful response from the GitHub API and checks if the method correctly
+    parses the response and returns a CommitsList object with the expected commits. It verifies the
+    length of the commits list and the SHA of each commit to ensure they match the expected values.
+
+    Returns:
+        None
+    """
     expected = CommitsList(commits=[
         Commit(sha="some_sha1"),
         Commit(sha="some_sha2")
     ])
-
-    # * Setup mock request and response
     mock_requests.mock_response_func = lambda: mock_requests.MockCommitsResponse(
         status_code=200,
         response_key="MockCommitsResponse"
@@ -32,8 +39,15 @@ def test_get_commits_success():
 
 
 def test_get_commits_empty():
-    """Test get_commits() method for an invalid status_code."""
-    # * Setup mock request and response
+    """
+    Test the get_commits() method to ensure it handles an empty response correctly.
+
+    This test case mocks a response with a 401 status code, simulating an unauthorized request. It checks
+    if the method correctly handles this case and returns an empty CommitsList object.
+
+    Returns:
+        None
+    """
     mock_requests.mock_response_func = lambda: mock_requests.MockCommitsResponse(
         status_code=401,
         response_key="MockCommitsResponse"

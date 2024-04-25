@@ -2,6 +2,16 @@ import json
 from models import rules_model
 
 def test_validation_rules():
+    """
+    Tests the creation and properties of a ValidationRules object.
+
+    This function creates a ValidationRules object with sample data and asserts
+    that the object's properties match the expected values. It checks various rules
+    such as meaningful lines threshold, minimum commits, minimum lines, minimum blame,
+    minimum time between commits, maximum files per commit, allowed file types, minimum
+    pull requests to create, maximum time to review a pull request, maximum issues opened,
+    and maximum time to resolve an issue.
+    """
     json_str = r"""
     {
         "meaningfulLinesThreshold": 10,

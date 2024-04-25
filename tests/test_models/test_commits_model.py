@@ -4,6 +4,13 @@ from models import commits_model
 
 
 def test_commits_list_model():
+    """
+    Tests the creation and properties of a CommitsList object.
+
+    This function creates a CommitsList object with sample data and asserts
+    that the object's properties match the expected values. It checks the number of
+    commits in the list and the SHA of each commit within the list.
+    """
     json_str = """
     {
         "commits": [

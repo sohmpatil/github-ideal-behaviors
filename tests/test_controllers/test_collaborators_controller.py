@@ -5,7 +5,15 @@ from models.collaborators_model import CollaboratorsList, Collaborator
 
 
 def test_get_collaborators_success():
-    """Test get_collaborators() method for a successful response."""
+    """
+    Test the get_collaborators() method to ensure it successfully retrieves a list of collaborators.
+
+    This test case mocks a successful response from the GitHub API and checks if the method correctly
+    parses the response and returns a CollaboratorsList object with the expected collaborators.
+
+    Returns:
+        None
+    """
     expected = CollaboratorsList(collaborators=[
         Collaborator(login="smungole"),
         Collaborator(login="hsakhuja")
@@ -29,8 +37,15 @@ def test_get_collaborators_success():
 
 
 def test_get_collaborators_empty():
-    """Test get_collaborators() method for an invalid status_code."""
-    # * Setup mock request and response
+    """
+    Test the get_collaborators() method to ensure it handles an empty response correctly.
+
+    This test case mocks a response with a 401 status code, simulating an unauthorized request. It checks
+    if the method correctly handles this case and returns an empty CollaboratorsList object.
+
+    Returns:
+        None
+    """
     mock_requests.mock_response_func = lambda: mock_requests.MockResponse(
         status_code=401,
         response_key="MockCollaboratorsResponse"

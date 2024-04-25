@@ -8,7 +8,6 @@ from controllers.request_controller import get_bad_behaviour_report, get_bad_beh
 app = FastAPI()
 
 
-# Set up logger
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("main")
 
@@ -25,27 +24,24 @@ async def startup_event():
 
 @app.post("/gitbehaviors")
 def analyze_repository(request: RepositoryAnalysisInput):
-    # Final data model
     data = collaborator_data_controller(request)
-    # get_report
     report = get_bad_behaviour_report(data, rules=RULES)
-    # return
     return report
+
 
 @app.post("/gitbehaviorsverbose")
 def analyze_repository(request: RepositoryAnalysisInput):
-    # Final data model
     data = collaborator_data_controller(request)
-    # get_report
     report = get_bad_behaviour_report_verbose(data, rules=RULES)
-    # return
     return report
+
 
 @app.post("/gitbehaviorsindividual")
 def analyze_repository(request: RepositoryAnalysisIndividualInput):
     data = collaborator_individual_data_controller(request)
     report = get_bad_behaviour_report_individual(data, rules=RULES)
     return report
+
 
 @app.get("/test")
 def test():

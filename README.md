@@ -57,3 +57,9 @@ curl -X 'POST' \
   "collaborator_username": "string"
 }'
 ```
+
+## How to run tests
+In the project root directory run following command
+```
+python -m pytest tests/
+```
