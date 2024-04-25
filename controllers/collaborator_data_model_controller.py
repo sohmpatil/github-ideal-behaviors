@@ -13,6 +13,25 @@ log = logging.getLogger("collaborator_data_model_controller")
 
 
 def collaborator_data_controller(request: RepositoryAnalysisInput) -> CollaboratorCommitList:
+    """
+    Analyze repository data to gather information about collaborators, commits, pull requests, and issues and save it in CollaboratorCommitList model.
+
+    Args:
+        request (RepositoryAnalysisInput): An input object containing repository name, owner and access token.
+
+    Returns:
+        CollaboratorCommitList: A list containing detailed information about each collaborator's commits, 
+            created and assigned pull requests, and created and assigned issues.
+
+    Raises:
+        None.
+
+    Note:
+        This function utilizes several helper functions (`get_collaborators`, `get_pull_requests`, 
+        `get_issues`, `get_commits`, and `get_commit_details`) to retrieve repository data.
+
+        CollaboratorCommitList and related models must be imported from appropriate modules.
+    """
     final_data = []
 
     collaborators = get_collaborators(
@@ -82,6 +101,27 @@ def collaborator_data_controller(request: RepositoryAnalysisInput) -> Collaborat
 
 
 def collaborator_individual_data_controller(request: RepositoryAnalysisIndividualInput) -> IndividualCollaboratorCommit:
+    """
+    Analyze individual collaborator data to gather information about their commits, 
+    created and assigned pull requests, and created and assigned issues.
+
+    Args:
+        request (RepositoryAnalysisIndividualInput): An input object containing repository owner, repository name,
+            collaborator's username, and access token.
+
+    Returns:
+        IndividualCollaboratorCommit: Detailed information about the collaborator's commits, 
+            created and assigned pull requests, and created and assigned issues.
+
+    Raises:
+        None.
+
+    Note:
+        This function utilizes helper functions (`get_commits`, `get_commit_details`, `get_pull_requests`, 
+        and `get_issues`) to retrieve repository data.
+
+        IndividualCollaboratorCommit model must be imported from the appropriate module.
+    """
     commits_details = []
     commits = get_commits(
         request.repository_owner,

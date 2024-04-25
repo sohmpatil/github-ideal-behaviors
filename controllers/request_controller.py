@@ -15,7 +15,17 @@ log = logging.getLogger("request_controller")
 
 
 def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRules) -> List[RepositoryAnalysisOutputItem]:
-    log.info(f'rules: {rules}')
+    """
+    Generates a report of bad behaviors based on the provided commit information and validation rules.
+
+    Args:
+        info (CollaboratorCommitList): A list of collaborator commit data.
+        rules (ValidationRules): A set of validation rules to check against.
+
+    Returns:
+        List[RepositoryAnalysisOutputItem]: A list of output items detailing the bad behaviors found.
+    """
+    log.info('rules: %s', rules)
     report = [
         RepositoryAnalysisOutputItem(
             collaborator=item.collaborator.login, 
@@ -93,13 +103,27 @@ def get_bad_behaviour_report(info: CollaboratorCommitList, rules: ValidationRule
     for index, item in enumerate(info.data):
         if collaborator_issue_count_dict[item.collaborator.login] > rules.maxIssuesOpened:
             report[index].violated_rules.append('maxIssuesOpened')
-    
-    log.info(f'Generated report: {report}')
+    log.info('Generated report: %s', report)
     return report
 
 
 def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: ValidationRules) -> List[RepositoryAnalysisOutputItemVerbose]:
-    log.info(f'rules: {rules}')
+    """
+    Generates a verbose report of bad behaviors based on the provided commit information and validation rules.
+
+    Args:
+        info (CollaboratorCommitList): A list of collaborator commit data. 
+        rules (ValidationRules): A set of validation rules to check against. 
+
+    Returns:
+        List[RepositoryAnalysisOutputItemVerbose]: A list of verbose output items. Each item in the list
+            corresponds to a collaborator and contains a dictionary of rules that the
+            collaborator has violated, with specific commit hashes as evidence for each violation.
+
+    Raises:
+        None.
+    """
+    log.info('rules: %s', rules)
     report = [
         RepositoryAnalysisOutputItemVerbose(
             collaborator=item.collaborator.login, 
@@ -173,13 +197,27 @@ def get_bad_behaviour_report_verbose(info: CollaboratorCommitList, rules: Valida
     # * 10. check violation for maxIssuesOpened
     for index, item in enumerate(info.data):
         if collaborator_issue_count_dict[item.collaborator.login] > rules.maxIssuesOpened:
-            report[index].violated_rules.append('maxIssuesOpened')
-    
-    log.info(f'Generated report: {report}')
+            report[index].violated_rules.append('maxIssuesOpened') 
+    log.info('Generated report: %s', report)
     return report
 
 
 def get_bad_behaviour_report_individual(info: IndividualCollaboratorCommit, rules: ValidationRules) -> RepositoryAnalysisIndividualOutputItem:
+    """
+    Generates an individual report of bad behaviors based on the provided commit information and validation rules for a single collaborator.
+
+    Args:
+        info (IndividualCollaboratorCommit): An object containing information about a collaborator's commits, pull requests, and issues.
+        rules (ValidationRules): A set of validation rules to check against. These rules define the criteria for what constitutes bad behavior in the context of the
+            repository's collaboration practices.
+
+    Returns:
+        RepositoryAnalysisIndividualOutputItem: An output item detailing the bad behaviors found for the specified collaborator. This includes a list of rules that the
+            collaborator has violated.
+
+    Raises:
+        None.
+    """
     report = RepositoryAnalysisIndividualOutputItem(
         violated_rules=[]
     )
@@ -254,22 +292,73 @@ def get_bad_behaviour_report_individual(info: IndividualCollaboratorCommit, rule
     return report
 
 def violated_meaningful_lines_threshold(meaningful_lines: int, min_threshold: int) -> bool:
+    """
+    Checks if the number of meaningful lines in a commit is below a specified minimum threshold.
+
+    Args:
+        meaningful_lines (int): The number of meaningful lines in a commit.
+        min_threshold (int): The minimum threshold for meaningful lines.
+
+    Returns:
+        bool: True if the number of meaningful lines is below the minimum threshold, False otherwise.
+    """
     return meaningful_lines < min_threshold
 
 
 def violated_min_blame(additions: int, min_threshold: int) -> bool:
+    """
+    Checks if the number of blames in a commit is below a specified minimum threshold.
+
+    Args:
+        additions (int): The number of additions in a commit.
+        min_threshold (int): The minimum threshold for additions.
+
+    Returns:
+        bool: True if the number of blames is below the minimum threshold, False otherwise.
+    """
     return additions < min_threshold
 
 
 def violated_min_lines(additions: int, deletions: int, min_threshold: int) -> bool:
+    """
+    Checks if the net number of lines added (additions minus deletions) in a commit is below a specified minimum threshold.
+
+    Args:
+        additions (int): The number of lines added in a commit.
+        deletions (int): The number of lines deleted in a commit.
+        min_threshold (int): The minimum threshold for net lines added.
+
+    Returns:
+        bool: True if the net number of lines added is below the minimum threshold, False otherwise.
+    """
     return additions - deletions < min_threshold
 
 
 def violated_max_files_per_commit(extension_count: List[int], max_threshold: int) -> bool:
+    """
+    Checks if the total number of files changed in a commit exceeds a specified maximum threshold.
+
+    Args:
+        extension_count (List[int]): A list of counts for each file extension changed in a commit.
+        max_threshold (int): The maximum threshold for the total number of files changed.
+
+    Returns:
+        bool: True if the total number of files changed exceeds the maximum threshold, False otherwise.
+    """
     return sum(extension_count) > max_threshold
 
 
 def violated_allowed_file_types(extensions: List[str], allowed_file_types: set) -> bool:
+    """
+    Checks if any of the changed file types in a commit are not in the allowed file types set.
+
+    Args:
+        extensions (List[str]): A list of file extensions for files changed in a commit.
+        allowed_file_types (set): A set of allowed file types.
+
+    Returns:
+        bool: True if any changed file type is not in the allowed file types set, False otherwise.
+    """
     for ext in extensions:
         if ext not in allowed_file_types:
             return True
@@ -277,19 +366,58 @@ def violated_allowed_file_types(extensions: List[str], allowed_file_types: set) 
 
 
 def violated_min_commits(commit_count: int, min_threshold: int) -> bool:
-    """Gt number of commits for each developer"""
+    """
+    Checks if the number of commits by a collaborator is below a specified minimum threshold.
+
+    Args:
+        commit_count (int): The number of commits by a collaborator.
+        min_threshold (int): The minimum threshold for the number of commits.
+
+    Returns:
+        bool: True if the number of commits is below the minimum threshold, False otherwise.
+    """
     return commit_count < min_threshold
 
 
 def violated_min_time_between_commits(time_diffs: List[float], min_threshold: int) -> bool:
+    """
+    Checks if the minimum time difference between consecutive commits is below a specified threshold.
+
+    Args:
+        time_diffs (List[float]): A list of time differences in hours between consecutive commits.
+        min_threshold (int): The minimum threshold for the time difference between consecutive commits.
+
+    Returns:
+        bool: True if any time difference is below the minimum threshold, False otherwise.
+    """
+
     return not all(map(lambda diff: diff >= min_threshold, time_diffs))
 
 
 def violated_max_time(review_time: float, max_threshold: int) -> bool:
+    """
+    Checks if the review time for a pull request or issue exceeds a specified maximum threshold.
+
+    Args:
+        review_time (float): The review time in hours.
+        max_threshold (int): The maximum threshold for the review time.
+
+    Returns:
+        bool: True if the review time exceeds the maximum threshold, False otherwise.
+    """
     return review_time > max_threshold
 
 
 def fetch_consecutive_time_between_commits(commits: List[CommitDetail]) -> List[float]:
+    """
+    Fetches the time differences in hours between consecutive commits.
+
+    Args:
+        commits (List[CommitDetail]): A list of commit details.
+
+    Returns:
+        List[float]: A list of time differences in hours between consecutive commits.
+    """
     timestamp_list = []
     for commit_info in commits:
         commit_timestamp = commit_info.commit.author.date
@@ -303,14 +431,46 @@ def fetch_consecutive_time_between_commits(commits: List[CommitDetail]) -> List[
     
 
 def to_datetime(timestamp: str) -> datetime.datetime:
+    """
+    Converts a timestamp string to a datetime object.
+
+    Args:
+        timestamp (str): A timestamp string in the format "%Y-%m-%dT%H:%M:%SZ".
+
+    Returns:
+        datetime.datetime: A datetime object representing the given timestamp.
+    """
+
     return datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
 
 
 def time_difference(first: datetime.datetime, second: datetime.datetime) -> float:
+    """
+    Calculates the time difference in hours between two datetime objects.
+
+    Args:
+        first (datetime.datetime): The first datetime object.
+        second (datetime.datetime): The second datetime object.
+
+    Returns:
+        float: The time difference in hours between the two datetime objects.
+    """
     return (second - first).total_seconds() / 3600
 
 
 def review_resolve_time(created_at: str, closed_at: Optional[str]) -> float:
+    """
+    Calculates the time taken to resolve a review (e.g., pull request or issue) in hours.
+
+    Args:
+        created_at (str): The timestamp when the review was created.
+        closed_at (Optional[str]): The timestamp when the review was closed. If not provided,
+            the current time is used.
+
+    Returns:
+        float: The time taken to resolve the review in hours.
+    """
+
     pr_opened = to_datetime(created_at)
     if closed_at:
         pr_closed = to_datetime(closed_at)
@@ -320,6 +480,15 @@ def review_resolve_time(created_at: str, closed_at: Optional[str]) -> float:
     return time_difference(pr_opened, pr_closed)
 
 def pr_opened_in_last_sprint(created_at: str) -> bool:
+    """
+    Checks if a pull request was opened in the last 14 days.
+
+    Args:
+        created_at (str): The timestamp when the pull request was created.
+
+    Returns:
+        bool: True if the pull request was opened in the last 14 days, False otherwise.
+    """
     # Convert the created_at string to a datetime object
     pr_opened = to_datetime(created_at)
     
@@ -330,6 +499,15 @@ def pr_opened_in_last_sprint(created_at: str) -> bool:
     return pr_opened >= fourteen_days_ago
 
 def issue_opened_in_last_sprint(created_at: str) -> bool:
+    """
+    Checks if an issue was opened in the last 14 days.
+
+    Args:
+        created_at (str): The timestamp when the issue was created.
+
+    Returns:
+        bool: True if the issue was opened in the last 14 days, False otherwise.
+    """
     # Convert the created_at string to a datetime object
     issue_opened = to_datetime(created_at)
     
@@ -340,6 +518,15 @@ def issue_opened_in_last_sprint(created_at: str) -> bool:
     return issue_opened >= fourteen_days_ago
 
 def calculate_time_diffs(timestamp_list: List[str]) -> List[float]:
+    """
+    Calculates the time differences in hours between consecutive timestamps in a list.
+
+    Args:
+        timestamp_list (List[str]): A list of timestamp strings.
+
+    Returns:
+        List[float]: A list of time differences in hours between consecutive timestamps.
+    """
     # Convert strings to datetime objects
     timestamps = [to_datetime(ts) for ts in timestamp_list[::-1]]
     # Calculate time differences in hours
@@ -351,6 +538,15 @@ def calculate_time_diffs(timestamp_list: List[str]) -> List[float]:
 
 
 def get_meaningful_lines(commit_info: CommitDetail) -> int:
+    """
+    Calculates the number of meaningful lines added in a commit.
+
+    Args:
+        commit_info (CommitDetail): Detailed information about a commit.
+
+    Returns:
+        int: The number of meaningful lines added in the commit.
+    """
     added_lines_dict = {}
     for file in commit_info.files:
         if file.patch:
@@ -368,6 +564,15 @@ def get_meaningful_lines(commit_info: CommitDetail) -> int:
 
 
 def get_number_of_new_lines(commit_info: CommitDetail) -> tuple:
+    """
+    Retrieves the number of lines added and deleted in a commit.
+
+    Args:
+        commit_info (CommitDetail): Detailed information about a commit.
+
+    Returns:
+        tuple: A tuple containing the number of lines added and deleted in the commit.
+    """
     stats = commit_info.stats
     if stats:
         additions = stats.additions or 0
@@ -378,6 +583,19 @@ def get_number_of_new_lines(commit_info: CommitDetail) -> tuple:
 
 
 def get_changed_files(commit_info: CommitDetail) -> dict:
+    """
+    Retrieve information about changed files from a commit.
+
+    Args:
+        commit_info (CommitDetail): Detailed information about a commit.
+
+    Returns:
+        dict: A dictionary containing file extensions as keys and their counts as values,
+            representing the number of times files with specific extension was changed in the commit.
+
+    Raises:
+        None.
+    """
     files = commit_info.files
     changed_files = [
         os.path.splitext(file.filename)[1]
