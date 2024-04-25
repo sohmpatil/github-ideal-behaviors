@@ -120,16 +120,14 @@ class MockResponse:
         }
         """,
         "MockCollaboratorsResponse": """
-        {
-            "collaborators": [
-                {
-                    "login": "smungole"
-                },
-                {
-                    "login": "hsakhuja"
-                }
-            ]
-        }
+        [
+            {
+                "login": "smungole"
+            },
+            {
+                "login": "hsakhuja"
+            }
+        ]
         """
     }
 
