@@ -4,12 +4,31 @@ from typing import Any, Callable, Optional, Union
 
 
 class MockResponse:
-    """This mocks the Response object from requests module"""
+    """
+    This class mocks the Response object from the requests module.
+    
+    Attributes:
+        status_code (int): The HTTP status code of the response.
+        response_key (str): The key used to retrieve the mock response from the _mock_response dictionary.
+    """
     def __init__(self, status_code: int, response_key: str) -> None:
+        """
+        Initialize the MockResponse object with a status code and a response key.
+        
+        Args:
+            status_code (int): The HTTP status code of the response.
+            response_key (str): The key used to retrieve the mock response from the _mock_response dictionary.
+        """
         self.status_code = status_code
         self.response_key = response_key
 
     def json(self) -> Any:
+        """
+        Returns the JSON content of the response.
+        
+        Returns:
+            Any: The JSON content of the response.
+        """
         response = __class__._mock_response.get(self.response_key)
         return json.loads(response)
     
@@ -133,10 +152,23 @@ class MockResponse:
 
 
 class MockCommitsResponse(MockResponse):
+    """
+    This class extends MockResponse to mock the response of a commits API call.
+    
+    Attributes:
+        curr_page (int): The current page of the paginated response.
+        total_pages (int): The total number of pages in the paginated response.
+    """
     curr_page = 0
     total_pages = 2
 
     def json(self) -> Any:
+        """
+        Returns the JSON content of the response, handling pagination.
+        
+        Returns:
+            Any: The JSON content of the response.
+        """
         if __class__.curr_page < __class__.total_pages:
             response = super()._mock_response.get(self.response_key)
             __class__.curr_page += 1
@@ -159,7 +191,16 @@ mock_response_func: Optional[Callable[[], MockResponse]] = None
 
 
 def get(url: str, headers: dict[str, str]) -> Union[MockResponse, None]:
-    """This mocks the requests.get() method"""
+    """
+    Mocks the requests.get() method.
+    
+    Args:
+        url (str): The URL of the API call.
+        headers (dict[str, str]): The headers to be sent with the request.
+        
+    Returns:
+        Union[MockResponse, None]: The mocked response object or None if no mock response function is set.
+    """
     _ = url, headers
     if mock_response_func:
         return mock_response_func()

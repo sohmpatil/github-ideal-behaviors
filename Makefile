@@ -16,6 +16,7 @@ run:
 executable:
 	pip install pyinstaller
 	pyinstaller main.py
+
 # Help	
 help:
 	@echo "Available commands:"

@@ -4,12 +4,24 @@ from typing import Any, Union, Optional, Callable
 
 
 class MockCollaboratorDataModelResponse:
-    """This mocks the Response object from requests module"""
+    """
+    This class mocks the Response object from the requests module.
+    
+    Attributes:
+        status_code (int): The HTTP status code of the response.
+        response_key (str): The key used to retrieve the mock response from the _mock_response dictionary.
+    """
     def __init__(self, status_code: int, response_key: str) -> None:
         self.status_code = status_code
         self.response_key = response_key
 
     def json(self) -> Any:
+        """
+        Returns the JSON content of the response.
+        
+        Returns:
+            Any: The JSON content of the response.
+        """
         response = __class__._mock_response.get(self.response_key)
         return json.loads(response)
     
@@ -96,6 +108,15 @@ class MockCollaboratorDataModelResponse:
     
 
 def mock_collaborator_data_model_response(url: str) -> MockCollaboratorDataModelResponse:
+    """
+    Mocks the response of an API call based on the URL.
+    
+    Args:
+        url (str): The URL of the API call.
+        
+    Returns:
+        MockCollaboratorDataModelResponse: The mocked response object.
+    """
     url_path = url.split("?")[0].endswith("commits")
     if url_path.endswith("collaborators"):
         # Return mock collaborators response
@@ -115,6 +136,15 @@ def mock_collaborator_data_model_response(url: str) -> MockCollaboratorDataModel
     
 
 def mock_collaborator_data_model_error_response(url: str) -> MockCollaboratorDataModelResponse:
+    """
+    Mocks an error response for an API call.
+    
+    Args:
+        url (str): The URL of the API call.
+        
+    Returns:
+        MockCollaboratorDataModelResponse: The mocked error response object.
+    """
     _ = url
     return MockCollaboratorDataModelResponse(401, "issues")
 
@@ -140,7 +170,16 @@ mock_response_func: Optional[Callable[[str], MockCollaboratorDataModelResponse]]
 
 
 def get(url: str, headers: dict[str, str]) -> Union[MockCollaboratorDataModelResponse, None]:
-    """This mocks the requests.get() method"""
+    """
+    Mocks the requests.get() method.
+    
+    Args:
+        url (str): The URL of the API call.
+        headers (dict[str, str]): The headers to be sent with the request.
+        
+    Returns:
+        Union[MockCollaboratorDataModelResponse, None]: The mocked response object or None if no mock response function is set.
+    """
     _ = headers
     if mock_response_func:
         return mock_response_func(url)
