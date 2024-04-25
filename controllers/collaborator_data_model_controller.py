@@ -1,4 +1,5 @@
 import logging
+import requests
 
 from models.collaborator_commit_model import CollaboratorCommit, CollaboratorCommitList, IndividualCollaboratorCommit
 from models.repository_io_model import RepositoryAnalysisInput, RepositoryAnalysisIndividualInput
@@ -12,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("collaborator_data_model_controller")
 
 
-def collaborator_data_controller(request: RepositoryAnalysisInput) -> CollaboratorCommitList:
+def collaborator_data_controller(request: RepositoryAnalysisInput, requests=requests) -> CollaboratorCommitList:
     """
     Analyze repository data to gather information about collaborators, commits, pull requests, and issues and save it in CollaboratorCommitList model.
 
@@ -37,17 +38,20 @@ def collaborator_data_controller(request: RepositoryAnalysisInput) -> Collaborat
     collaborators = get_collaborators(
         request.repository_owner,
         request.repository_name,
-        request.git_access_token
+        request.git_access_token,
+        requests=requests
     )
     pull_requests = get_pull_requests(
         request.repository_owner,
         request.repository_name,
-        request.git_access_token
+        request.git_access_token,
+        requests=requests
     )
     issues = get_issues(
         request.repository_owner,
         request.repository_name,
-        request.git_access_token
+        request.git_access_token,
+        requests=requests
     )
 
     for collaborator in collaborators.collaborators:
@@ -56,7 +60,8 @@ def collaborator_data_controller(request: RepositoryAnalysisInput) -> Collaborat
             request.repository_owner,
             request.repository_name,
             request.git_access_token,
-            collaborator.login
+            collaborator.login,
+            requests=requests
         )
         log.info(f'{collaborator.login}: {len(commits.commits) if commits else 0} commits.')
 
@@ -65,9 +70,12 @@ def collaborator_data_controller(request: RepositoryAnalysisInput) -> Collaborat
                 request.repository_owner,
                 request.repository_name,
                 commit.sha,
-                request.git_access_token
+                request.git_access_token,
+                requests=requests
             )
-            commits_details.append(commit_detail)
+            if commit_detail:
+                commits_details.append(commit_detail)
+                
         pr_created = []
         pr_assigned = []
 
@@ -100,7 +108,7 @@ def collaborator_data_controller(request: RepositoryAnalysisInput) -> Collaborat
     return final_data_model
 
 
-def collaborator_individual_data_controller(request: RepositoryAnalysisIndividualInput) -> IndividualCollaboratorCommit:
+def collaborator_individual_data_controller(request: RepositoryAnalysisIndividualInput, requests=requests) -> IndividualCollaboratorCommit:
     """
     Analyze individual collaborator data to gather information about their commits, 
     created and assigned pull requests, and created and assigned issues.
@@ -127,7 +135,8 @@ def collaborator_individual_data_controller(request: RepositoryAnalysisIndividua
         request.repository_owner,
         request.repository_name,
         request.git_access_token,
-        request.collaborator_username
+        request.collaborator_username,
+        requests=requests
     )
     log.info(f'{request.collaborator_username}: {len(commits.commits) if commits else 0} commits.')
 
@@ -136,18 +145,20 @@ def collaborator_individual_data_controller(request: RepositoryAnalysisIndividua
             request.repository_owner,
             request.repository_name,
             commit.sha,
-            request.git_access_token
+            request.git_access_token,
+            requests=requests
         )
-        commits_details.append(commit_detail)
+        if commit_detail:
+            commits_details.append(commit_detail)
+
     pr_created = []
     pr_assigned = []
-
     pull_requests = get_pull_requests(
         request.repository_owner,
         request.repository_name,
-        request.git_access_token
+        request.git_access_token,
+        requests=requests
     )
-
     for pull_request in pull_requests.pull_requests:
         if pull_request.creator == request.collaborator_username:
             pr_created.append(pull_request)
@@ -157,7 +168,8 @@ def collaborator_individual_data_controller(request: RepositoryAnalysisIndividua
     issues = get_issues(
         request.repository_owner,
         request.repository_name,
-        request.git_access_token
+        request.git_access_token,
+        requests=requests
     )
     issue_assigned = []
     issue_created = []
@@ -166,6 +178,7 @@ def collaborator_individual_data_controller(request: RepositoryAnalysisIndividua
             issue_assigned.append(issue)
         if issue.user.login == request.collaborator_username:
             issue_created.append(issue)
+
     collaborator_commit = IndividualCollaboratorCommit(
         commits=commits_details,
         pr_created=pr_created,
