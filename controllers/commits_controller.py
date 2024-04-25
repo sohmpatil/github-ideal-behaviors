@@ -7,7 +7,24 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("commits_controller")
 
 
-def get_commits(owner, repo, access_token, author='', requests=requests) -> CommitsList:
+def get_commits(owner: str, repo: str, access_token: str, author: str = '', requests=requests) -> CommitsList:
+    """
+        Retrieve a list of commits from a GitHub repository.
+
+        Args:
+            owner (str): The owner of the GitHub repository.
+            repo (str): The name of the GitHub repository.
+            access_token (str): The personal access token used for authentication.
+            requests (Optional[module]): The `requests` module to use for making HTTP requests.
+            Defaults to the `requests` module if not provided explicitly.
+
+        Returns:
+            CommitsList: A list of commits from the specified repository.
+
+        Raises:
+            None.
+    """
+
     page = 1
     commits = CommitsList(commits=[])
 
