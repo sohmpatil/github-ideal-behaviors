@@ -18,12 +18,24 @@ RULES: ValidationRules = None
 
 @app.on_event("startup")
 async def startup_event():
+    """
+    Load validation rules at application startup.
+    """
     global RULES
     RULES = load_rules(RULES_FOLDER_PATH, RULES_FILE)
 
 
 @app.post("/gitbehaviors")
 def analyze_repository(request: RepositoryAnalysisInput):
+    """
+    Analyze repository behavior based on input data.
+
+    Parameters:
+    - request (RepositoryAnalysisInput): The input data for repository analysis.
+
+    Returns:
+    - report: A report on the repository's behavior.
+    """
     data = collaborator_data_controller(request)
     report = get_bad_behaviour_report(data, rules=RULES)
     return report
@@ -31,6 +43,15 @@ def analyze_repository(request: RepositoryAnalysisInput):
 
 @app.post("/gitbehaviorsverbose")
 def analyze_repository(request: RepositoryAnalysisInput):
+    """
+    Analyze repository behavior with verbose output based on input data.
+
+    Parameters:
+    - request (RepositoryAnalysisInput): The input data for repository analysis.
+
+    Returns:
+    - report: A detailed report on the repository's behavior.
+    """
     data = collaborator_data_controller(request)
     report = get_bad_behaviour_report_verbose(data, rules=RULES)
     return report
@@ -38,6 +59,15 @@ def analyze_repository(request: RepositoryAnalysisInput):
 
 @app.post("/gitbehaviorsindividual")
 def analyze_repository(request: RepositoryAnalysisIndividualInput):
+    """
+    Analyze individual collaborator behavior based on input data.
+
+    Parameters:
+    - request (RepositoryAnalysisIndividualInput): The input data for individual collaborator analysis.
+
+    Returns:
+    - report: A report on the individual collaborator's behavior.
+    """
     data = collaborator_individual_data_controller(request)
     report = get_bad_behaviour_report_individual(data, rules=RULES)
     return report
@@ -45,6 +75,9 @@ def analyze_repository(request: RepositoryAnalysisIndividualInput):
 
 @app.get("/test")
 def test():
+    """
+    A test endpoint to log the loaded validation rules.
+    """
     log.info(RULES)
 
 
