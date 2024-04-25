@@ -3,6 +3,13 @@ import json
 from models import repository_io_model
 
 def test_repository_analysis_input():
+    """
+    Tests the creation and properties of a RepositoryAnalysisInput object.
+
+    This function creates a RepositoryAnalysisInput object with sample data and asserts
+    that the object's properties match the expected values. It checks the repository owner,
+    repository name, and Git access token.
+    """
     json_str = """
     {
         "repository_owner": "hardik", 
@@ -23,6 +30,13 @@ def test_repository_analysis_input():
 
 
 def test_repository_analysis_output_item():
+    """
+    Tests the creation and properties of a RepositoryAnalysisOutputItem object.
+
+    This function creates a RepositoryAnalysisOutputItem object with sample data and asserts
+    that the object's properties match the expected values. It checks the collaborator's name
+    and the list of violated rules.
+    """
     item = repository_io_model.RepositoryAnalysisOutputItem(
         collaborator="smungole",
         violated_rules=["minLines", "minBlame"]
@@ -38,6 +52,13 @@ def test_repository_analysis_output_item():
 
 
 def test_repository_analysis_output_items():
+    """
+    Tests the creation and properties of a list of RepositoryAnalysisOutputItem objects.
+
+    This function creates a list of RepositoryAnalysisOutputItem objects with sample data and asserts
+    that the list's properties match the expected values. It checks the number of items in the list,
+    the collaborator's name, and the list of violated rules for each item.
+    """
     items = [
         repository_io_model.RepositoryAnalysisOutputItem(
             collaborator="smungole",

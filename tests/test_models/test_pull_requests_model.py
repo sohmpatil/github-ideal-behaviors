@@ -2,6 +2,13 @@ import json
 from models import pull_requests_model
 
 def test_pull_requests():
+    """
+    Tests the creation and properties of a PullRequests object.
+
+    This function creates a PullRequests object with sample data and asserts
+    that the object's properties match the expected values. It checks the pull request's
+    creator, ID, assignees, creation and closure timestamps, state, and merge commit SHA.
+    """
     pull_requests_json_str = """
     {
         "creator": "rhish9h",
@@ -28,6 +35,14 @@ def test_pull_requests():
     assert pull_requests_obj.merge_commit_sha == "e89f7a33d84b4057b8cfe9074a8b38f45bcb7804"
 
 def test_pull_requests_list():
+    """
+    Tests the creation and properties of a PullRequestsList object.
+
+    This function creates a PullRequestsList object with sample data and asserts
+    that the object's properties match the expected values. It checks the number of
+    pull requests in the list and the details of each pull request, including the
+    creator, ID, assignees, creation and closure timestamps, state, and merge commit SHA.
+    """
     pull_requests_list_json_str = """
     {
         "pull_requests": [

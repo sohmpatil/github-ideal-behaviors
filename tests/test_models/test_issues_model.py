@@ -2,6 +2,14 @@ import json
 from models import issues_model
 
 def test_issue():
+    """
+    Tests the creation and properties of an IssueList object.
+
+    This function creates an IssueList object with sample data and asserts
+    that the object's properties match the expected values. It checks the number of
+    issues in the list, the details of each issue, including the issue ID, user login,
+    assignee login, assignees list, and timestamps for creation and update.
+    """
     json_str = r"""
     {
         "issues": [
