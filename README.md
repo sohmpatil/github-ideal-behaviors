@@ -61,5 +61,5 @@ curl -X 'POST' \
 ## How to run tests
 In the project root directory run following command
 ```
-pytest tests/
+python -m pytest tests/
 ```
