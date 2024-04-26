@@ -5,7 +5,11 @@ from models.commit_details_model import CommitDetail
 
 
 def test_get_commits_success():
-    """Test get_commits() method for a successful response."""
+    """
+    Test the successful retrieval of commit details.
+
+    This test verifies that the get_commit_details function correctly processes input data and returns expected commit details.
+    """
     expected = CommitDetail(sha="6dcb09b5b57875f334f61aebed695e2e4193db5e")
 
     # * Setup mock request and response
@@ -25,7 +29,11 @@ def test_get_commits_success():
 
 
 def test_get_commits_empty():
-    """Test get_commits() method for an invalid status_code."""
+    """
+    Test the scenario where the get_commit_details function returns empty data.
+
+    This test checks if the function correctly handles cases where the API response is empty or unauthorized.
+    """
     # * Setup mock request and response
     mock_requests.mock_response_func = lambda: mock_requests.MockResponse(
         status_code=401,

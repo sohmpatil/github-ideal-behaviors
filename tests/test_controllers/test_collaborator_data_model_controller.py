@@ -10,6 +10,11 @@ from models.issues_model import Issue, User, Assignee
 
 
 def test_collaborator_individual_data_controller_success():
+    """
+    Test the successful retrieval of collaborator data for an individual.
+
+    This test checks if the collaborator_individual_data_controller function correctly processes input data and returns expected data.
+    """
     input = RepositoryAnalysisIndividualInput(
         repository_owner="test1",
         repository_name="test_name",
@@ -76,6 +81,11 @@ def test_collaborator_individual_data_controller_success():
 
 
 def test_collaborator_individual_data_controller_empty():
+    """
+    Test the scenario where the collaborator_individual_data_controller returns empty data.
+
+    This test checks if the function correctly handles cases where the API response is empty or unauthorized.
+    """
     input = RepositoryAnalysisIndividualInput(
         repository_owner="test1",
         repository_name="test_name",
