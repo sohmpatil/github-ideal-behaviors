@@ -19,6 +19,20 @@ OR
 ```
 python -m uvicorn main:app --reload
 ```
+## How to run in docker container
+- To build image
+```
+make build
+```
+- To build and image and run
+```
+make container
+```
+  OR
+```
+docker build -t github-ideal-behavior:latest .
+docker run -p 8080:8080 github-ideal-behavior:latest
+```
 
 ## How to use API
 ```
