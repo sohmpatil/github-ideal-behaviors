@@ -68,7 +68,7 @@ class MockCollaboratorDataModelResponse:
                     "login": "test1"
                 },
                 "assignee": {
-                    "login": "test1"
+                    "login": "test2"
                 },
                 "assignees": [
                     {
@@ -95,19 +95,14 @@ class MockCollaboratorDataModelResponse:
         ]
         """,
         "details": """
-        [
-            {
-                "sha" : "some_sha1"  
-            },
-            {
-                "sha" : "some_sha2"  
-            }
-        ]
+        {
+            "sha" : "some_sha1"  
+        }
         """
     }
     
 
-def mock_collaborator_data_model_response(url: str) -> MockCollaboratorDataModelResponse:
+def mock_collaborator_data_model_response(status: int, url: str) -> MockCollaboratorDataModelResponse:
     """
     Mocks the response of an API call based on the URL.
     
@@ -117,36 +112,36 @@ def mock_collaborator_data_model_response(url: str) -> MockCollaboratorDataModel
     Returns:
         MockCollaboratorDataModelResponse: The mocked response object.
     """
-    url_path = url.split("?")[0].endswith("commits")
+    url_path = url.split("?")[0]
     if url_path.endswith("collaborators"):
         # Return mock collaborators response
-        return MockCollaboratorDataModelResponse(200, "collaborators")
+        return MockCollaboratorDataModelResponse(status, "collaborators")
     elif url_path.endswith("pulls"):
         # Return pull requests response
-        return MockCollaboratorDataModelResponse(200, "pulls")
+        return MockCollaboratorDataModelResponse(status, "pulls")
     elif url_path.endswith("issues"):
         # Return issues response
-        return MockCollaboratorDataModelResponse(200, "issues")
+        return MockCollaboratorDataModelResponse(status, "issues")
     elif url_path.endswith("commits"):
         # Return commits list
-        return MockCollaboratorDataModelResponse(200, "commits")
+        return MockCommitsResponse(status, "commits")
     else:
         # Return commit details
-        return MockCollaboratorDataModelResponse(200, "details")
-    
+        return MockCollaboratorDataModelResponse(status, "details")
 
-def mock_collaborator_data_model_error_response(url: str) -> MockCollaboratorDataModelResponse:
-    """
-    Mocks an error response for an API call.
-    
-    Args:
-        url (str): The URL of the API call.
-        
-    Returns:
-        MockCollaboratorDataModelResponse: The mocked error response object.
-    """
-    _ = url
-    return MockCollaboratorDataModelResponse(401, "issues")
+
+class MockCommitsResponse(MockCollaboratorDataModelResponse):
+    curr_page = 0
+    total_pages = 1
+
+    def json(self) -> Any:
+        if __class__.curr_page < __class__.total_pages:
+            response = super()._mock_response.get(self.response_key)
+            __class__.curr_page += 1
+            return json.loads(response)
+        else:
+            __class__.curr_page = 0
+            return json.loads('{}')
 
 
 """
